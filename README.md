@@ -1,0 +1,4 @@
+YandexTest
+==========
+
+Yandex Test Application

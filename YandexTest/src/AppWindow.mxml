@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%" xmlns:local="*"
+		 creationComplete="on_creation_complete(event)"
+>
+<fx:Script>
+<![CDATA[
+	import mx.collections.ArrayCollection;
+	import mx.events.FlexEvent;
+
+protected function on_creation_complete(event:FlexEvent):void
+{
+	new Engine();
+	Engine.engine.open_database_connection();
+	Engine.engine.data_provider = dp;
+	Engine.engine.dep_dp = dep_dp;
+}
+
+[Bindable] private var dp:ArrayCollection = new ArrayCollection();
+[Bindable] private var dep_dp:ArrayCollection = new ArrayCollection();
+	
+]]>
+</fx:Script>
+<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8">
+	
+	<s:HGroup width="100%">
+		<s:Button label="Открыть DB Файл" icon="{Icons.ico_database}" minHeight="24"/>
+		<s:Spacer width="40" />
+		<s:Button label="Добавить" minHeight="24" icon="{Icons.ico_add}" />
+		<s:Button label="Уволить" minHeight="24" icon="{Icons.ico_delete}" />
+		<s:Spacer width="100%" />
+		<s:Button label="О программе" minHeight="24" icon="{Icons.ico_about}"/>		
+	</s:HGroup>	
+	
+	<mx:HBox width="100%" height="100%">
+		
+
+	
+	<mx:DataGrid width="100%" height="100%" dataProvider="{dp}">
+		<mx:columns>
+			<fx:Array>
+				<mx:DataGridColumn headerText="ID" width="10" dataField="EmplID"/>
+				<mx:DataGridColumn headerText="Имя" width="30" dataField="FirstName"/>
+				<mx:DataGridColumn headerText="Фамилия" width="30" dataField="LastName"/>	
+				<mx:DataGridColumn headerText="Отделение" width="30" dataField="DeptID"/>
+				<mx:DataGridColumn headerText="Должность" width="30" dataField="Position"/>			
+			
+			</fx:Array>
+		</mx:columns>			
+	</mx:DataGrid>
+
+	<mx:List width="100%" dataProvider="{dep_dp}" labelField="DeptName" />
+		
+	</mx:HBox>
+
+</mx:VBox>
+	
+<local:StatusBar />
+	
+<fx:Declarations>
+</fx:Declarations>
+</mx:VBox>

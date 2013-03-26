@@ -7,6 +7,8 @@
 >
 <fx:Script>
 <![CDATA[
+	import flash.filesystem.File;
+	
 	import mx.collections.ArrayCollection;
 	import mx.core.IFlexDisplayObject;
 	import mx.events.FlexEvent;
@@ -20,8 +22,8 @@
 protected function on_creation_complete(event:FlexEvent):void
 {
 	new Engine();
-	Engine.engine.open_database_connection();
 	Engine.engine.data_provider = dp;
+	Engine.engine.open_database_connection("");
 }
 
 [Bindable] private var dp:ArrayCollection = new ArrayCollection();
@@ -33,7 +35,7 @@ protected function barbutton1_clickHandler(event:MouseEvent):void
 	var w:AppTitleWindow = wnd as AppTitleWindow;
 	
 	w.title = "Отделения";
-	w.holder.addChild(new DepartmentsEditorWIndow());
+	w.holder.addChild(new DepartmentsEditorWindow());
 	w.ctrl.addChild(new Button());
 	
 	w.area.setStyle("paddingLeft", 8);
@@ -68,12 +70,37 @@ protected function barbutton2_clickHandler(event:MouseEvent):void
 	PopUpManager.centerPopUp(wnd);
 }
 	
+protected function btn_open_db_clickHandler(event:MouseEvent):void
+{
+//	var file:File = File.
+	var fr:File = new File();
+	fr.addEventListener(Event.SELECT, on_file_selected);
+	
+	var filter1:FileFilter = new FileFilter("DB Файлы (*.db, *.sqlite)", "*.db;*.sqlite"); 
+	var filter2:FileFilter = new FileFilter("Все Файлы", "*.*");
+	
+	fr.browseForOpen("", [filter1, filter2]);
+}
+
+protected function on_file_selected(e:Event):void
+{
+	var fr:File = e.target as File;
+	
+	fr.removeEventListener(Event.SELECT, on_file_selected);	
+
+	var file_name:String = fr.nativePath;
+	var disp_name:String = fr.name;
+	
+	Engine.engine.open_database_connection(file_name, disp_name);	
+}	
+	
+	
 ]]>
 </fx:Script>
 <mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8">
 	
 	<s:HGroup width="100%">
-		<controls:BarButton label="Открыть DB Файл" icon="{Icons.ico_database}" />
+		<controls:BarButton id="btn_open_db" label="Открыть DB Файл" icon="{Icons.ico_database}" click="btn_open_db_clickHandler(event)" />
 		<s:Spacer width="40" />
 
 		<controls:BarButton label="Отделения" click="barbutton1_clickHandler(event)" />		
@@ -100,7 +127,7 @@ protected function barbutton2_clickHandler(event:MouseEvent):void
 		</mx:columns>			
 	</mx:DataGrid>
 
-	<local:DepartmentsEditorWIndow width="100%" height="100%" />
+	<local:DepartmentsEditorWindow width="100%" height="100%" />
 		
 	</mx:HBox>
 

@@ -19,7 +19,7 @@
 </fx:Script>
 
 <s:Image source="{sc.f_connected ? Icons.ico_con_yes : ( sc.f_try_connect ?  Icons.ico_con_try : Icons.ico_con_no)}" click="{sc.open_close_database_connection()}"/>
-<s:Label text="Ready" />
+<s:Label text="{sc.f_connected ? sc._disp_name : 'Ready'}" />
 <s:Spacer width="12" />
 
 	

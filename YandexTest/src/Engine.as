@@ -1,6 +1,7 @@
 package
 {
 import flash.data.SQLConnection;
+import flash.data.SQLMode;
 import flash.data.SQLResult;
 import flash.data.SQLStatement;
 import flash.events.SQLErrorEvent;
@@ -20,6 +21,9 @@ public static function get engine():Engine { return _engine != null ? _engine : 
 public var data_provider:ArrayCollection;
 public var dep_dp:ArrayCollection = new ArrayCollection();
 
+private var _file_name:String = "";
+[Bindable] public  var _disp_name:String = "";
+
 public function Engine()
 {
 }
@@ -32,7 +36,7 @@ public function open_close_database_connection():void
 		close_database_connection();
 	}
 	else {
-		open_database_connection();
+		open_database_connection(_file_name, _disp_name);
 	}
 }
 
@@ -53,11 +57,21 @@ public function close_database_connection():void
 }
 	
 	
-public function open_database_connection():void
+public function open_database_connection(file_name:String = "", disp_name:String = ""):void
 {
 	close_database_connection();
-	f_try_connect = true;
-	f_connected = false;
+
+	if (file_name == "") {
+		file_name = PP.get_str("default_open_db_file_name", "");		
+		disp_name = PP.get_str("default_open_db_disp_name", "");
+		
+		if (file_name == "") return;
+	}
+	
+	_file_name = file_name;
+	_disp_name = disp_name;
+	
+	f_try_connect = true;	
 	
 	// create new sqlConnection
 	sqlConnection = new SQLConnection();
@@ -68,28 +82,32 @@ public function open_database_connection():void
 	var folder:File = File.applicationStorageDirectory;
 	//folder = folder.resolvePath("data");
 	
-	var file:File = folder.resolvePath("C:\\Users\\Vasiliy\\Downloads\\staff.db");
+	var file:File = folder.resolvePath(file_name);
 		 
 	// open database,If the file doesn't exist yet, it will be created
-	sqlConnection.openAsync(file);
+	sqlConnection.openAsync(file, SQLMode.UPDATE);
 }
 
-private function on_database_open(event:SQLEvent):void
+protected function on_database_open(event:SQLEvent):void
 {
+	PP.set_str("default_open_db_file_name", _file_name);
+	PP.set_str("default_open_db_disp_name", _file_name);
 	f_try_connect = false;
 	f_connected = sqlConnection.connected;
 	do_database_open();
 }
 
-private function on_database_open_error(event:SQLErrorEvent):void
+protected function on_database_open_error(event:SQLErrorEvent):void
 {
+	PP.set_str("default_open_db_file_name", "");
+	PP.set_str("default_open_db_disp_name", "");
 	f_try_connect = false;
 	f_connected = false;
 }
 
 
 
-private function do_database_open():void
+protected function do_database_open():void
 {
 	query_departments();
 
@@ -124,6 +142,9 @@ protected function query_departments_result(e:SQLEvent):void
 		departments[i] = new Department(o['DeptID'], o['DeptName']);
 		departments_index[departments[i].DeptID] = i;
 	}
+	
+	departments.push(new Department(-1, ""));
+	
 	
 	dep_dp.source = departments;
 	

@@ -7,7 +7,9 @@
     <classEntry path="renderers.DeptItemRenderer"/>
     <classEntry path="controls.BarButton"/>
     <classEntry path="AppTitleWindow"/>
-    <classEntry path="DepartmentsEditorWIndow"/>
+    <classEntry path="DepartmentsEditorWindow"/>
+    <classEntry path="Changer"/>
+    <classEntry path="controls.ListEx"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

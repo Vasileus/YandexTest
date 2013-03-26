@@ -1,16 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<mx:HBox  xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		  xmlns:s="library://ns.adobe.com/flex/spark" 
 		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  implements="mx.controls.listClasses.IDropInListItemRenderer"
 		  width="100%" verticalAlign="middle" paddingLeft="8" paddingRight="8"
 		  horizontalScrollPolicy="off" verticalScrollPolicy="off"
 		  creationComplete="on_creation_complete(event)"
+		  minHeight="16"
+		  keyDown="lbl_name_keyDownHandler(event)"
 >
 <fx:Script>
 
 <![CDATA[
-import mx.events.FlexEvent;
+	import controls.ListEx;
+	
+	import mx.collections.ArrayCollection;
+	import mx.controls.List;
+	import mx.controls.listClasses.BaseListData;
+	import mx.core.UIComponent;
+	import mx.events.FlexEvent;
+	import mx.events.ResizeEvent;
+	import mx.utils.StringUtil;
 
+private var _listData:BaseListData;
+
+[Bindable] public var f_selected:Boolean = false;
+	
+//[Bindable] public var f_deleted:Boolean = false;	
+	
+	
+[Bindable] public var changer:Changer;	
+	
+[Bindable("dataChange")]	
+public  function get listData():BaseListData
+{
+	return _listData;
+}
+
+public function set listData(value:BaseListData):void
+{
+	_listData = value;
+}	
+
+[Bindable("dataChange")]	
+public override function get data():Object
+{
+	return super.data;
+}
+
+public override function set data(value:Object):void
+{
+	super.data = value;
+	ini_changer();
+}
+	
+protected function ini_changer():void
+{
+	if (_listData == null || data == null) {
+		changer = null;
+		return;
+	}
+	
+	var list:ListEx = _listData.owner as ListEx;	
+//	if (list == null) 
+//		return;
+/*
+	if (id == -1) {
+		var a:ArrayCollection = list.dataProvider as ArrayCollection;
+		id = a[_listData.rowIndex].DeptID; 
+	}
+*/
+	var id:int = data.DeptID;
+	f_selected = Engine.engine.departments_index[id] == list.selectedIndex;
+	
+	
+	changer = list.user_data.changer[id];
+
+}
+	
+
+protected function mark_deleted():void
+{
+	set_changer(true, null);
+	var text:String = data.DeptName;
+	inp_name.text = text;
+	
+/*	
+	
+	if (changer == null) {
+		changer = new Changer(true);
+		var list:ListEx = _listData.owner as ListEx;
+		list.user_data.changer[data.DeptID] = changer;
+	}
+	else {
+		changer.f_deleted = true;	
+	}
+*/
+}
+
+protected function unmark_deleted():void
+{
+	if (changer != null) {
+		changer.f_deleted = false;
+		test_del_changer();
+	}
+}
+	
+	
+	
+	
 protected function on_creation_complete(event:FlexEvent):void
 {
 }
@@ -21,12 +119,213 @@ protected function fname(id:int):String
 	return e.departments[e.departments_index[id]].DeptName;
 }	
 	
+protected function label1_clickHandler(event:MouseEvent = null):void
+{
+//	removeChild(lbl_name);
+//	addChildAt(inp_name, numChildren);
+	inp_name.setFocus();
+}
+	
+protected function foc_out():void
+{
+//	removeChild(inp_name);
+//	addChildAt(lbl_name, numChildren);
+	invalidateDisplayList();
+	(parent as UIComponent).setFocus();
+}
+
+protected function inp_name_enterHandler(event:FlexEvent):void
+{
+	callLater(foc_out);
+}
+	
+protected function inp_name_keyDownHandler(event:KeyboardEvent):void
+{
+	switch (event.keyCode) {
+		case Keyboard.UP:
+		case Keyboard.DOWN:
+		case Keyboard.PAGE_UP:		
+		case Keyboard.PAGE_DOWN:		
+			event.preventDefault();			
+//			event.stopPropagation(); // ПРОВАЛИВАЕМСЯ ДАЛЬШЕ В "case"
+//			return;			
+		case Keyboard.HOME:
+		case Keyboard.END:
+			event.stopPropagation();
+			return;
+			
+		case Keyboard.ESCAPE:
+			revert();
+			(parent as UIComponent).setFocus();			
+			event.stopPropagation();			
+			return;
+	}
+	
+	
+	
+//	if (event.keyCode == Keyboard.UP) {
+//	}
+	
+}
+	
+protected function lbl_name_keyDownHandler(event:KeyboardEvent):void
+{
+	if (event.keyCode == Keyboard.ENTER) {
+		label1_clickHandler();
+	}
+	
+}
+	
+protected function inp_name_focusInHandler(event:FocusEvent):void
+{
+	inp_name.setStyle("contentBackgroundAlpha", 1);
+	unmark_deleted();
+	draw_strike();	
+
+	
+	
+	inp_name.setStyle("color", 0x000000);
+}
+	
+protected function inp_name_focusOutHandler(event:FocusEvent):void
+{
+	inp_name.setStyle("contentBackgroundAlpha", 0);
+	inp_name.horizontalScrollPosition = 0;
+
+	var id:int = data.DeptID;
+	var name:String = data.DeptName;
+	
+	
+	inp_name.setStyle("color", id >= 0 ? 0x000000 : (name == "" ? 0x808080 : 0x000000 )  );	
+}
+
+override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+{
+	super.updateDisplayList(unscaledWidth, unscaledHeight);
+	draw_strike();
+}
+
+	
+protected function draw_strike():void
+{
+	var g:Graphics = strike.graphics;
+	var w:int = strike.width;
+	var h:int = strike.height / 2;
+
+	g.clear();
+	if (changer == null || !changer.f_deleted) return;
+	
+	g.beginFill(0);
+	g.lineStyle(1, 0xC00000);
+	g.moveTo(0, h);
+	g.lineTo(w, h);	
+	
+}
+	
+protected function strike_resizeHandler(event:ResizeEvent):void
+{
+	invalidateDisplayList();
+	
+}
+	
+protected function ico_del_clickHandler(event:MouseEvent):void
+{
+	mark_deleted();
+	invalidateDisplayList();	
+}
+
+protected function test_del_changer():void	
+{
+	if (changer != null && changer.is_empty())
+		del_changer();
+}
+
+protected function set_changer(f_deleted:Boolean, value:String):void
+{
+	if (changer != null) {
+		changer.f_deleted = f_deleted;
+		changer.value = value;
+		test_del_changer();
+		return;
+	}
+	
+	if (!f_deleted && value == null)
+		return;
+	
+	
+	var list:ListEx = _listData.owner as ListEx;	
+	if (list == null) return; // ERROR
+
+	var id:int = data.DeptID;	
+	changer = list.user_data.changer[id] = new Changer(f_deleted, value);	
+	
+	test_del_changer();
+}
+	
+protected function del_changer():void	
+{
+	if (changer == null) return;
+	
+	var list:ListEx = _listData.owner as ListEx;	
+	if (list == null) return; // ERROR
+
+	var id:int = data.DeptID;	
+
+	delete list.user_data.changer[id];
+	changer = null;
+}
+	
+protected function revert():void	
+{
+	del_changer();
+
+	var text:String = data.DeptName;
+	inp_name.text = text;
+}
+
+protected function inp_name_changeHandler(event:Event):void
+{
+	var text:String = StringUtil.trim(inp_name.text);
+	set_changer(false, text == data.DeptName ? null : text);
+}
+
+protected function get_name_text(data:Object):String
+{
+	var id:int = data.DeptID;
+	var name:String = data.DeptName;
+	
+	if (id >= 0) {
+		return name;
+	}
+
+	if (name == "") {
+		return "Новый отдел";
+	}
+
+	return "???";
+}
+	
 ]]>
 </fx:Script>
 
+<s:Label text="*" color="#FF0000"  alpha="{changer == null ? 0 : 1} "/>	
+<s:Label text="{data.DeptID &lt; 0 ? '' : data.DeptID }" color="#808080" textAlign="right" minWidth="32" paddingRight="4"/>
+<!--<mx:Label id="lbl_name" text="{data.DeptName}" width="100%" click="label1_clickHandler(event)"  />-->	
+<mx:Canvas width="100%" id="strike">
+<!--<mx:UIComponent  width="100%" height="100%" resize="strike_resizeHandler(event)"/>-->
+
+<mx:TextInput id="inp_name" text="{get_name_text(data)}" width="100%" editable="true" enter="inp_name_enterHandler(event)" 
+			  focusIn="inp_name_focusInHandler(event)" focusOut="inp_name_focusOutHandler(event)" 
+			  keyDown="inp_name_keyDownHandler(event)" 
+			  borderVisible="false" contentBackgroundAlpha="0"
+			  change="inp_name_changeHandler(event)"
+
+/>
+</mx:Canvas>
+
+<s:Image id="ico_del" source="{(f_selected &amp;&amp; !(changer &amp;&amp; changer.f_deleted))  ? Icons.ico_delete : null}" width="24" click="ico_del_clickHandler(event)" />
 	
-<s:Label text="{data.DeptID}" color="#808080" textAlign="right" minWidth="32"/>
-<s:Label text="{data.DeptName}" />	
 <fx:Declarations>
+
 </fx:Declarations>
 </mx:HBox>

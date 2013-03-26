@@ -3,27 +3,93 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 width="100%" height="100%"
-		 creationComplete="on_creation_complete(event)"
+		 creationComplete="on_creation_complete(event)" xmlns:renderers="renderers.*" xmlns:controls="controls.*"
 >
 <fx:Script>
 <![CDATA[
 	import mx.collections.ArrayCollection;
+	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
+	import mx.events.ListEvent;
+	
+	import renderers.DeptEditItemRenderer;
 	
 [Bindable] private var dp:ArrayCollection;	
 
+[Bindable] public var tst:String = "***";	
+	
 protected function on_creation_complete(event:FlexEvent):void
 {
 	dp = Engine.engine.dep_dp;
 }
 
+private var current_index:int = -1;
+	
 
+//protected function list_changeHandler(e:ListEvent):void
+//{
+//	callLater(list_change);	
+//}
+	
+	
+protected function list_changeHandler(e:ListEvent):void
+{
+	var index:int = list.selectedIndex;
+	
+	var item:DeptEditItemRenderer = list.indexToItemRenderer(index) as DeptEditItemRenderer;
+	var current_item:DeptEditItemRenderer = list.indexToItemRenderer(current_index) as DeptEditItemRenderer;
+	
+	
+	if (item != current_item) {
+		if (current_item != null) {
+			current_item.f_selected = false;
+			current_item.invalidateDisplayList();
+		}
+		
+		current_item = item;
+	}
 
+	if (current_item != null) {
+		current_item.f_selected = true;
+		current_item.invalidateDisplayList();
+	}
+	
+	
+	current_index = index;
+//	item.inp_name.text += "*";
+	
+}
+
+protected function list_keyDownHandler(event:KeyboardEvent):void
+{
+	if (event.keyCode == Keyboard.ENTER) {
+		list.scrollToIndex(list.selectedIndex);
+		var item:DeptEditItemRenderer = list.indexToItemRenderer(list.selectedIndex) as DeptEditItemRenderer;	
+		if (item != null) {  
+			item.inp_name.setFocus();
+		}
+	}
+}
+	
+	
+[Bindable] protected var user_data:Object = { changer: {} };
+	
+	
+	
 ]]>
 </fx:Script>
 
+<mx:HBox width="100%" height="100%">
 	
-<mx:List width="100%" height="100%" dataProvider="{dp}" labelField="DeptName" itemRenderer="renderers.DeptEditItemRenderer" />	
+<mx:VBox width="100%" height="100%">
+	<controls:ListEx id="list" width="100%" height="100%" dataProvider="{dp}" labelField="DeptName" itemRenderer="renderers.DeptEditItemRenderer" change="list_changeHandler(event)" user_data="{user_data}" keyDown="list_keyDownHandler(event)"/>	
+</mx:VBox>
+<mx:VBox height="100%">
+	<s:Button label="Добавить" width="100%" />	
+	<s:Button label="Удалить" width="100%" />
+</mx:VBox>	
+	
+</mx:HBox>
 	
 <fx:Declarations>
 </fx:Declarations>

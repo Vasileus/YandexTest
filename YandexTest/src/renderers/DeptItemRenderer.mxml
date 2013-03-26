@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  width="100%" verticalAlign="middle" paddingLeft="8" paddingRight="8"
+		  horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		  creationComplete="on_creation_complete(event)"
+>
+<fx:Script>
+
+<![CDATA[
+import mx.events.FlexEvent;
+
+protected function on_creation_complete(event:FlexEvent):void
+{
+}
+
+protected function fname(id:int):String
+{
+	var e:Engine = Engine.engine;
+	return e.departments[e.departments_index[id]].DeptName;
+}	
+	
+]]>
+</fx:Script>
+
+	
+	
+<s:Label text="{fname(data.DeptID)}" color="#202020" paddingRight="8"/>	
+<fx:Declarations>
+</fx:Declarations>
+</mx:HBox>

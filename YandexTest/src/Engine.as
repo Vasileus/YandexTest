@@ -18,7 +18,7 @@ public static function get engine():Engine { return _engine != null ? _engine : 
 [Bindable] public var f_try_connect:Boolean = false;
 
 public var data_provider:ArrayCollection;
-public var dep_dp:ArrayCollection;
+public var dep_dp:ArrayCollection = new ArrayCollection();
 
 public function Engine()
 {
@@ -101,6 +101,7 @@ private function do_database_open():void
 // ----------------------------------------------------------------------------------------------------
 // DEPARTMENTS
 public var departments:Array = [];
+public var departments_index:Object = {};
 
 protected function query_departments():void
 {
@@ -115,9 +116,13 @@ protected function query_departments_result(e:SQLEvent):void
 
 	var a:Array = result.data;
 	departments.splice(0);
+	departments_index = {};
 	
 	for (var i:int = 0; i < a.length; i++) {
-		departments[i] = new Department(a[i]['DeptID'], a[i]['DeptName']);
+		var o:Object = a[i];
+		
+		departments[i] = new Department(o['DeptID'], o['DeptName']);
+		departments_index[departments[i].DeptID] = i;
 	}
 	
 	dep_dp.source = departments;

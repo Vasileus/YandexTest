@@ -4,6 +4,10 @@
     <classEntry path="AppWindow"/>
     <classEntry path="Employee"/>
     <classEntry path="Engine"/>
+    <classEntry path="renderers.DeptItemRenderer"/>
+    <classEntry path="controls.BarButton"/>
+    <classEntry path="AppTitleWindow"/>
+    <classEntry path="DepartmentsEditorWIndow"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

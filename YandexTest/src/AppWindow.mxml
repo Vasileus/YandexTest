@@ -36,7 +36,7 @@ protected function barbutton1_clickHandler(event:MouseEvent):void
 	
 	w.title = "Отделения";
 	w.holder.addChild(new DepartmentsEditorWindow());
-	w.ctrl.addChild(new Button());
+//	w.ctrl.addChild(new Button());
 	
 	w.area.setStyle("paddingLeft", 8);
 	w.area.setStyle("paddingRight", 8);	
@@ -77,7 +77,7 @@ protected function btn_open_db_clickHandler(event:MouseEvent):void
 	fr.addEventListener(Event.SELECT, on_file_selected);
 	
 	var filter1:FileFilter = new FileFilter("DB Файлы (*.db, *.sqlite)", "*.db;*.sqlite"); 
-	var filter2:FileFilter = new FileFilter("Все Файлы", "*.*");
+	var filter2:FileFilter = new FileFilter("Все Файлы (*.*)", "*.*");
 	
 	fr.browseForOpen("", [filter1, filter2]);
 }

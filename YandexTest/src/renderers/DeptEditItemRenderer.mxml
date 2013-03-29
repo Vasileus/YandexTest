@@ -258,6 +258,7 @@ protected function set_changer(f_deleted:Boolean, value:String):void
 
 	var id:int = data.DeptID;	
 	changer = list.user_data.changer[id] = new Changer(f_deleted, value);	
+	list.user_data.changer._++;
 	
 	test_del_changer();
 }
@@ -273,6 +274,7 @@ protected function del_changer():void
 
 	delete list.user_data.changer[id];
 	changer = null;
+	list.user_data.changer._--;
 }
 	
 protected function revert():void	
@@ -309,7 +311,7 @@ protected function get_name_text(data:Object):String
 </fx:Script>
 
 <s:Label text="*" color="#FF0000"  alpha="{changer == null ? 0 : 1} "/>	
-<s:Label text="{data.DeptID &lt; 0 ? '' : data.DeptID }" color="#808080" textAlign="right" minWidth="32" paddingRight="4"/>
+<s:Label text="{data.DeptID &lt; 0 ? '+' : data.DeptID }" color="#808080" textAlign="right" minWidth="32" paddingRight="4"/>
 <!--<mx:Label id="lbl_name" text="{data.DeptName}" width="100%" click="label1_clickHandler(event)"  />-->	
 <mx:Canvas width="100%" id="strike">
 <!--<mx:UIComponent  width="100%" height="100%" resize="strike_resizeHandler(event)"/>-->

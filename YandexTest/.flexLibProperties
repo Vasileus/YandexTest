@@ -10,6 +10,7 @@
     <classEntry path="DepartmentsEditorWindow"/>
     <classEntry path="Changer"/>
     <classEntry path="controls.ListEx"/>
+    <classEntry path="controls.ObjectEx"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

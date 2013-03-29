@@ -7,10 +7,13 @@
 >
 <fx:Script>
 <![CDATA[
+	import controls.ObjectEx;
+	
 	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	import mx.events.ListEvent;
+	import mx.utils.ObjectProxy;
 	
 	import renderers.DeptEditItemRenderer;
 	
@@ -72,7 +75,8 @@ protected function list_keyDownHandler(event:KeyboardEvent):void
 }
 	
 	
-[Bindable] protected var user_data:Object = { changer: {} };
+[Bindable] protected var changer:ObjectEx = new ObjectEx();//new ObjectProxy();	
+[Bindable] protected var user_data:Object = { changer: changer };
 	
 	
 	
@@ -84,12 +88,16 @@ protected function list_keyDownHandler(event:KeyboardEvent):void
 <mx:VBox width="100%" height="100%">
 	<controls:ListEx id="list" width="100%" height="100%" dataProvider="{dp}" labelField="DeptName" itemRenderer="renderers.DeptEditItemRenderer" change="list_changeHandler(event)" user_data="{user_data}" keyDown="list_keyDownHandler(event)"/>	
 </mx:VBox>
-<mx:VBox height="100%">
-	<s:Button label="Добавить" width="100%" />	
-	<s:Button label="Удалить" width="100%" />
-</mx:VBox>	
 	
 </mx:HBox>
+
+<mx:HBox width="100%" horizontalAlign="right">
+	<s:Button label="Применить" enabled="{changer._ != 0}"  />	
+	<s:Button label="Сбросить" enabled="{changer._ != 0}" />
+	<s:Button label="Закрыть" enabled="{changer._  == 0}" />
+</mx:HBox>	
+	
+	
 	
 <fx:Declarations>
 </fx:Declarations>

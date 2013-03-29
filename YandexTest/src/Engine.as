@@ -79,12 +79,12 @@ public function open_database_connection(file_name:String = "", disp_name:String
 	sqlConnection.addEventListener(SQLErrorEvent.ERROR, on_database_open_error);
 		 
 	// get currently dir
-	var folder:File = File.applicationStorageDirectory;
-	//folder = folder.resolvePath("data");
+    // var folder:File = File.applicationStorageDirectory;
+	// folder = folder.resolvePath("data");
 	
-	var file:File = folder.resolvePath(file_name);
+	var file:File = File.documentsDirectory.resolvePath(file_name);
 		 
-	// open database,If the file doesn't exist yet, it will be created
+	// open exist database
 	sqlConnection.openAsync(file, SQLMode.UPDATE);
 }
 

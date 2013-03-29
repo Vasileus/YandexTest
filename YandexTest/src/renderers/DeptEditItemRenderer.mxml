@@ -8,26 +8,28 @@
 		  creationComplete="on_creation_complete(event)"
 		  minHeight="16"
 		  keyDown="lbl_name_keyDownHandler(event)"
+		  horizontalGap="0"
 >
 <fx:Script>
 
 <![CDATA[
-	import controls.ListEx;
-	
-	import mx.collections.ArrayCollection;
-	import mx.controls.List;
-	import mx.controls.listClasses.BaseListData;
-	import mx.core.UIComponent;
-	import mx.events.FlexEvent;
-	import mx.events.ResizeEvent;
-	import mx.utils.StringUtil;
+import controls.ListEx;
+
+import mx.collections.ArrayCollection;
+import mx.controls.List;
+import mx.controls.listClasses.BaseListData;
+import mx.core.UIComponent;
+import mx.events.FlexEvent;
+import mx.events.ResizeEvent;
+import mx.utils.StringUtil;
 
 private var _listData:BaseListData;
 
 [Bindable] public var f_selected:Boolean = false;
+public var f_text_inp_focused:Boolean = false;
 	
 //[Bindable] public var f_deleted:Boolean = false;	
-	
+protected static var text_new_department:String = "Новый отдел";
 	
 [Bindable] public var changer:Changer;	
 	
@@ -52,6 +54,11 @@ public override function set data(value:Object):void
 {
 	super.data = value;
 	ini_changer();
+
+	if (!f_text_inp_focused) {
+		inp_name.text = get_name_text(data);
+	}
+	set_text_input_color();
 }
 	
 protected function ini_changer():void
@@ -71,8 +78,8 @@ protected function ini_changer():void
 	}
 */
 	var id:int = data.DeptID;
-	f_selected = Engine.engine.departments_index[id] == list.selectedIndex;
-	
+//	f_selected = Engine.engine.departments_index[id] == list.selectedIndex;
+	f_selected = (list.dataProvider as ArrayCollection).getItemIndex(data) == list.selectedIndex;	
 	
 	changer = list.user_data.changer[id];
 
@@ -81,9 +88,13 @@ protected function ini_changer():void
 
 protected function mark_deleted():void
 {
+	if (changer != null && changer.value != null) {
+		inp_name.text = data.DeptName = changer.value;		
+	}
+	
 	set_changer(true, null);
-	var text:String = data.DeptName;
-	inp_name.text = text;
+//	var text:String = data.DeptName;
+
 	
 /*	
 	
@@ -131,7 +142,10 @@ protected function foc_out():void
 //	removeChild(inp_name);
 //	addChildAt(lbl_name, numChildren);
 	invalidateDisplayList();
-	(parent as UIComponent).setFocus();
+	
+	if (_listData != null && (_listData.owner is UIComponent)) {
+		(_listData.owner as UIComponent).setFocus();
+	}
 }
 
 protected function inp_name_enterHandler(event:FlexEvent):void
@@ -141,6 +155,10 @@ protected function inp_name_enterHandler(event:FlexEvent):void
 	
 protected function inp_name_keyDownHandler(event:KeyboardEvent):void
 {
+
+	event.stopPropagation();		
+
+	
 	switch (event.keyCode) {
 		case Keyboard.UP:
 		case Keyboard.DOWN:
@@ -151,13 +169,13 @@ protected function inp_name_keyDownHandler(event:KeyboardEvent):void
 //			return;			
 		case Keyboard.HOME:
 		case Keyboard.END:
-			event.stopPropagation();
+//			event.stopPropagation();
 			return;
 			
 		case Keyboard.ESCAPE:
 			revert();
 			(parent as UIComponent).setFocus();			
-			event.stopPropagation();			
+//			event.stopPropagation();			
 			return;
 	}
 	
@@ -178,27 +196,59 @@ protected function lbl_name_keyDownHandler(event:KeyboardEvent):void
 	
 protected function inp_name_focusInHandler(event:FocusEvent):void
 {
+	f_text_inp_focused = true;
+	
 	inp_name.setStyle("contentBackgroundAlpha", 1);
 	unmark_deleted();
 	draw_strike();	
 
+	var id:int = data.DeptID;
+	var name:String = data.DeptName;
 	
+	if (id < 0) {
+		inp_name.text = data.DeptName;
+	}
 	
-	inp_name.setStyle("color", 0x000000);
+	set_text_input_color();
 }
 	
 protected function inp_name_focusOutHandler(event:FocusEvent):void
 {
+	f_text_inp_focused = false;
+	
 	inp_name.setStyle("contentBackgroundAlpha", 0);
 	inp_name.horizontalScrollPosition = 0;
 
+	var text:String = StringUtil.trim(inp_name.text);
+	
+	data.DeptName = inp_name.text = text;
+	
 	var id:int = data.DeptID;
 	var name:String = data.DeptName;
 	
+	if (id < 0 && name == "") {
+		inp_name.text = text_new_department;		
+	}
 	
-	inp_name.setStyle("color", id >= 0 ? 0x000000 : (name == "" ? 0x808080 : 0x000000 )  );	
+	set_text_input_color();
+	
+	if (name != "" && _listData != null) {
+		var list:ListEx = _listData.owner as ListEx;
+		list.user_data.papa.add_new_item();
+	}
+	
 }
 
+protected function set_text_input_color():void
+{
+	if (data == null) return;
+	
+	var id:int = data.DeptID;
+	var name:String = data.DeptName;	
+
+	inp_name.setStyle("color", (f_text_inp_focused || id >= 0) ? 0x000000 : (name == "" ? 0x808080 : 0x000000 )  );	
+}	
+	
 override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 {
 	super.updateDisplayList(unscaledWidth, unscaledHeight);
@@ -230,8 +280,15 @@ protected function strike_resizeHandler(event:ResizeEvent):void
 	
 protected function ico_del_clickHandler(event:MouseEvent):void
 {
-	mark_deleted();
-	invalidateDisplayList();	
+	var id:int = data.DeptID;	
+	if (id < 0) {
+		var list:ListEx = _listData.owner as ListEx;
+		list.user_data.papa.delete_item(id);
+	}
+	else {
+		mark_deleted();
+		invalidateDisplayList();
+	}
 }
 
 protected function test_del_changer():void	
@@ -279,20 +336,41 @@ protected function del_changer():void
 	
 protected function revert():void	
 {
+	if (changer != null && changer.value != null) {
+		inp_name.text = data.DeptName = changer.value;		
+	}
+	
 	del_changer();
-
-	var text:String = data.DeptName;
-	inp_name.text = text;
 }
 
 protected function inp_name_changeHandler(event:Event):void
 {
+
 	var text:String = StringUtil.trim(inp_name.text);
-	set_changer(false, text == data.DeptName ? null : text);
+	if (text == data.DeptName) return;
+	
+	if (changer == null || changer.value == null) {
+		set_changer(false, data.DeptName);
+		data.DeptName = text;
+		return;
+	}
+
+	data.DeptName = text;	
+	
+	if (changer != null && changer.value != null && changer.value == text) {
+		del_changer();			
+		return;
+	}
+
+	test_del_changer();
+
 }
 
 protected function get_name_text(data:Object):String
 {
+	if (data == null) return "";
+	
+	
 	var id:int = data.DeptID;
 	var name:String = data.DeptName;
 	
@@ -301,26 +379,28 @@ protected function get_name_text(data:Object):String
 	}
 
 	if (name == "") {
-		return "Новый отдел";
+		return text_new_department;
 	}
 
-	return "???";
+	return name;
 }
 	
 ]]>
 </fx:Script>
 
-<s:Label text="*" color="#FF0000"  alpha="{changer == null ? 0 : 1} "/>	
+<s:Label text="*" color="#FF0000"  alpha="{changer == null ? 0 : 1} " fontWeight="bold" fontSize="18"/>	
+	
+	<!--<s:Image id="ico_chk" source="{(changer == null)  ? null  : Icons.ico_check}" width="16" />-->	
 <s:Label text="{data.DeptID &lt; 0 ? '+' : data.DeptID }" color="#808080" textAlign="right" minWidth="32" paddingRight="4"/>
 <!--<mx:Label id="lbl_name" text="{data.DeptName}" width="100%" click="label1_clickHandler(event)"  />-->	
-<mx:Canvas width="100%" id="strike">
+<mx:Canvas width="100%" id="strike" resize="strike_resizeHandler(event)">
 <!--<mx:UIComponent  width="100%" height="100%" resize="strike_resizeHandler(event)"/>-->
 
-<mx:TextInput id="inp_name" text="{get_name_text(data)}" width="100%" editable="true" enter="inp_name_enterHandler(event)" 
+<mx:TextInput id="inp_name" text="" width="100%" editable="true" borderVisible="false" contentBackgroundAlpha="0" 
+			  enter="inp_name_enterHandler(event)" change="inp_name_changeHandler(event)" 
 			  focusIn="inp_name_focusInHandler(event)" focusOut="inp_name_focusOutHandler(event)" 
 			  keyDown="inp_name_keyDownHandler(event)" 
-			  borderVisible="false" contentBackgroundAlpha="0"
-			  change="inp_name_changeHandler(event)"
+			  
 
 />
 </mx:Canvas>

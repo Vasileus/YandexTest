@@ -25,7 +25,10 @@ public function Icons()
 [Embed(source="./assets/add.png")]
 [Bindable] public static var ico_add:Class;
 
-[Embed(source="./assets/delete.png")]
+[Embed(source="./assets/delete2.png")]
 [Bindable] public static var ico_delete:Class;
+
+[Embed(source="./assets/check.png")]
+[Bindable] public static var ico_check:Class;
 
 }}

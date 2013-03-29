@@ -1,5 +1,7 @@
 package
 {
+import controls.ObjectEx;
+
 import flash.data.SQLConnection;
 import flash.data.SQLMode;
 import flash.data.SQLResult;
@@ -19,7 +21,7 @@ public static function get engine():Engine { return _engine != null ? _engine : 
 [Bindable] public var f_try_connect:Boolean = false;
 
 public var data_provider:ArrayCollection;
-public var dep_dp:ArrayCollection = new ArrayCollection();
+[Bindable] public var dep_dp:ArrayCollection = new ArrayCollection();
 
 private var _file_name:String = "";
 [Bindable] public  var _disp_name:String = "";
@@ -112,7 +114,7 @@ protected function do_database_open():void
 	query_departments();
 
 	var sql:String = "SELECT * FROM Employees ORDER BY EmplID ASC LIMIT 0,100";	
-	query_execute(sql, statResult, common_error);
+	query_execute(sql, null, statResult, common_error);
 	
 }
 
@@ -121,9 +123,15 @@ protected function do_database_open():void
 public var departments:Array = [];
 public var departments_index:Object = {};
 
-protected function query_departments():void
+protected var query_departments_done:Function = null;
+protected var apply_departments_changes_count:int = 0;
+protected var apply_departments_changes_done:Function = null;
+[Bindable] public var departments_query_count:int = 0;
+
+public function query_departments(done:Function = null):void
 {
-	query_execute("SELECT * FROM Departments", query_departments_result, query_departments_error);
+	query_departments_done = done;
+	query_execute("SELECT * FROM Departments", null, query_departments_result, query_departments_error);
 }
 
 
@@ -143,22 +151,97 @@ protected function query_departments_result(e:SQLEvent):void
 		departments_index[departments[i].DeptID] = i;
 	}
 	
+	
 	departments.push(new Department(-1, ""));
 	
-	
+	departments_query_count++;
 	dep_dp.source = departments;
-	
+	if (query_departments_done != null) query_departments_done();
 	return;
 }
 
 protected function query_departments_error(e:SQLErrorEvent):void
 {
+	if (query_departments_done != null) query_departments_done();	
+}
+
+public function apply_departments_changes(changes:ObjectEx, done:Function):void
+{
+	apply_departments_changes_count = 0;
+	apply_departments_changes_done = done;
 	
+	for (var key:String in changes) {
+		var id:int = int(key);		
+		var ch:Changer = changes[key];
+		
+		if (ch.f_deleted && id >= 0) {
+			apply_departments_changes_count++;
+			query_execute("DELETE FROM Departments WHERE DeptID='" + id +"'", null, 
+				apply_departments_changes_result, apply_departments_changes_error);			
+			
+			
+		}
+		else {
+			if (id >= 0) {
+				var name:String = (departments[departments_index[id]] as  Department).DeptName;
+				apply_departments_changes_count++;
+				query_execute("UPDATE Departments SET DeptName='" + escape(name) +"' WHERE DeptID='" + id + "'", null, 
+					apply_departments_changes_result, apply_departments_changes_error);			
+			}
+		}
+	}
+
+// Добавляем поля
+// Мульти вставки в SQLite нет -- ПОЗОРИЩЕ!!!, а я расчитывал на VALUES ('abc'),('abc'),('abc')  ;(((((((((( 
+	
+	var i:int;
+	var dept:Department
+	
+	for (i = departments.length - 1; i >= 0; i--) {
+		dept = departments[i] as Department;
+		if (dept.DeptID >= 0) break;
+		if (dept.DeptName == "") continue;		
+	}
+	
+	for (i++; i < departments.length; i++) { 
+		var add:String = "";
+		
+		dept = departments[i] as Department;
+		if (dept.DeptName == "") continue;		
+		
+		add = "('" + escape(dept.DeptName) + "')" + (add.length == 0 ? '' : ',') + add;
+
+		if (add.length != 0) {
+			apply_departments_changes_count++;
+			query_execute("INSERT INTO Departments (DeptName) VALUES " + add + "", null, 
+				apply_departments_changes_result, apply_departments_changes_error);		
+		}
+	}
+
+
+}
+
+protected function apply_departments_changes_result(e:SQLEvent):void
+{
+	if (--apply_departments_changes_count == 0)
+		apply_departments_changes_done();
+}
+	
+protected function apply_departments_changes_error(e:SQLErrorEvent):void
+{
+	if (--apply_departments_changes_count == 0)
+		apply_departments_changes_done();
 }
 
 
+
+
+
+
+
+// ----------------------------------------------------------------------------------------------------
 //private var sqlStat:SQLStatement;
-protected function query_execute(sql:String, result:Function, error:Function):void
+protected function query_execute(sql:String, params:Object, result:Function, error:Function):void
 {
 	var ss:SQLStatement = new SQLStatement();
 	ss.sqlConnection = sqlConnection;
@@ -182,6 +265,9 @@ protected function common_error(e:SQLErrorEvent):void
 	var a:int = 0;
 }
 
-
+protected function escape(s:String):String
+{
+	return s.replace(/'/g, "''");
+}
 
 }}

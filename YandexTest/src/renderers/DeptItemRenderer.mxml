@@ -11,14 +11,40 @@
 <![CDATA[
 import mx.events.FlexEvent;
 
+[Bindable] protected var item:Department;
+	
+[Bindable("dataChange")]	
+public override function get data():Object
+{
+	return super.data;
+}
+
+public override function set data(value:Object):void
+{
+	super.data = value;
+	reset_data();
+}
+	
+protected function reset_data():void
+{
+	if (data != null) {
+		var engine:Engine = Engine.engine
+		var i:* = engine.departments_index[data.DeptID];
+		item = i != null ? engine.departments[i] : null;
+	}
+	else {
+		item = null;
+	}
+}
+	
 protected function on_creation_complete(event:FlexEvent):void
 {
 }
 
-protected function fname(id:int):String
+protected function changer(o:*):Boolean
 {
-	var e:Engine = Engine.engine;
-	return e.departments[e.departments_index[id]].DeptName;
+	reset_data();
+	return true;
 }	
 	
 ]]>
@@ -26,7 +52,8 @@ protected function fname(id:int):String
 
 	
 	
-<s:Label text="{fname(data.DeptID)}" color="#202020" paddingRight="8"/>	
+<s:Label text="{item.DeptName}" color="#202020" paddingRight="8"/>	
 <fx:Declarations>
+<fx:Boolean>{changer(Engine.engine.departments_query_count)}</fx:Boolean>
 </fx:Declarations>
 </mx:HBox>

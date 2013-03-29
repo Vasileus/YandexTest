@@ -91,7 +91,7 @@ public function open_database_connection(file_name:String = "", disp_name:String
 protected function on_database_open(event:SQLEvent):void
 {
 	PP.set_str("default_open_db_file_name", _file_name);
-	PP.set_str("default_open_db_disp_name", _file_name);
+	PP.set_str("default_open_db_disp_name", _disp_name);
 	f_try_connect = false;
 	f_connected = sqlConnection.connected;
 	do_database_open();

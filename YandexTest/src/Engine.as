@@ -21,7 +21,7 @@ public static function get engine():Engine { return _engine != null ? _engine : 
 [Bindable] public var f_try_connect:Boolean = false;
 
 public var data_provider:ArrayCollection;
-[Bindable] public var dep_dp:ArrayCollection = new ArrayCollection();
+
 
 private var _file_name:String = "";
 [Bindable] public  var _disp_name:String = "";
@@ -108,7 +108,7 @@ protected function on_database_open_error(event:SQLErrorEvent):void
 }
 
 
-
+// ----------------------------------------------------------------------------------------------------
 protected function do_database_open():void
 {
 	query_departments();
@@ -117,6 +117,15 @@ protected function do_database_open():void
 	query_execute(sql, null, statResult, common_error);
 	
 }
+
+protected function statResult(e:SQLEvent):void
+{
+	var ss:SQLStatement = e.currentTarget as SQLStatement;
+	
+	var result:SQLResult = ss.getResult();
+	data_provider.source = result.data;
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 // EMPLOYEE
@@ -132,6 +141,7 @@ public function update_employee_field(id:int, name:String, value:String, done:Fu
 // DEPARTMENTS
 public var departments:Array = [];
 public var departments_index:Object = {};
+[Bindable] public var dep_dp:ArrayCollection = new ArrayCollection();
 
 protected var query_departments_done:Function = null;
 protected var apply_departments_changes_count:int = 0;
@@ -265,13 +275,6 @@ protected function query_execute(sql:String, params:Object, result:Function, err
 }
 
 
-protected function statResult(e:SQLEvent):void
-{
-	var ss:SQLStatement = e.currentTarget as SQLStatement;
-
-	var result:SQLResult = ss.getResult();
-	data_provider.source = result.data;
-}
 
 protected function common_result(e:SQLEvent):void
 {

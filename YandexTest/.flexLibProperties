@@ -13,6 +13,8 @@
     <classEntry path="controls.ObjectEx"/>
     <classEntry path="controls.DataGridEx"/>
     <classEntry path="AboutWindow"/>
+    <classEntry path="EmployeeWindow"/>
+    <classEntry path="Windows"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

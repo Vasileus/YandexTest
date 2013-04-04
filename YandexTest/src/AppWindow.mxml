@@ -8,6 +8,7 @@
 <fx:Script>
 <![CDATA[
 	import flash.filesystem.File;
+	import flash.utils.setTimeout;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.IFlexDisplayObject;
@@ -20,30 +21,23 @@
 	import spark.components.Panel;
 	import spark.components.TitleWindow;
 
+	
+public static var app:AppWindow;
+	
 protected function on_creation_complete(event:FlexEvent):void
 {
+	app = this;
 	new Engine();
 	Engine.engine.data_provider = dp;
 	
-	callLater(Engine.engine.open_database_connection, [""]);
+	setTimeout(Engine.engine.open_database_connection, 500);
+//	callLater(Engine.engine.open_database_connection, [""]);
 //	Engine.engine.open_database_connection("");
 }
 
 [Bindable] private var dp:ArrayCollection = new ArrayCollection();
 
-protected var wnd_departments:AppTitleWindow;
-	
-protected function btn_departments_clickHandler(event:MouseEvent):void
-{
-	open_window(this, "wnd_departments", "Отделения",  400, 400, DepartmentsEditorWindow);
-}
 
-protected var wnd_about:AppTitleWindow;
-
-protected function btn_about_clickHandler(event:MouseEvent):void
-{
-	open_window(this, "wnd_about", "О программе",  300, 260, AboutWindow);
-}
 	
 	
 protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class):AppTitleWindow
@@ -116,6 +110,7 @@ public function change_item(id:int, name:String, value:String):void
 	
 [Bindable] protected var list_data:Object = { papa: this };	
 	
+	
 ]]>
 </fx:Script>
 <mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8">
@@ -124,11 +119,11 @@ public function change_item(id:int, name:String, value:String):void
 		<controls:BarButton id="btn_open_db" label="Открыть DB Файл" icon="{Icons.ico_database}" click="btn_open_db_clickHandler(event)" />
 		<s:Spacer width="40" />
 
-		<controls:BarButton label="Отделения" click="btn_departments_clickHandler(event)" />		
-		<controls:BarButton label="Добавить" icon="{Icons.ico_add}" />
+		<controls:BarButton label="Отделения" click="{Windows.windows.departments()}" />		
+		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.ico_add}" click="{Windows.windows.add_employee()}" />
 		<controls:BarButton label="Уволить"  icon="{Icons.ico_delete}" />
 		<s:Spacer width="100%" />
-		<controls:BarButton label="О программе" icon="{Icons.ico_about}" click="btn_about_clickHandler(event)"/>		
+		<controls:BarButton label="О программе" icon="{Icons.ico_about}" click="{Windows.windows.about()}"/>		
 	</s:HGroup>	
 	
 	<mx:HBox width="100%" height="100%">
@@ -140,17 +135,26 @@ public function change_item(id:int, name:String, value:String):void
 	<controls:DataGridEx width="100%" height="100%" dataProvider="{dp}"  columns="{columns}" user_data="{list_data}"/>
 
 	<mx:HBox width="100%" verticalAlign="middle">
+		<s:Button label="Правка" click="{Windows.windows.edit_employee()}" />
+		<s:Spacer width="20" />
 		<s:Button label="&lt;&lt; Пред. Страница" />
 		<s:Button label="&gt;&gt; След. Страница" />
 		<s:Spacer width="100%" />
 		<s:Label text="Кол-во записей : 100(10000000)" />		
+		<s:Button label="Обновить" />
 	</mx:HBox>
 		
 	</mx:VBox>		
 	
-	<mx:VBox width="400" height="100%" backgroundColor="#EEEEEE" />
+	<mx:VBox width="400" height="100%" backgroundColor="#EEEEEE">
+		<mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
+			<s:Label text="Фильтр" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
+		</mx:HBox>
+		<local:EmployeeWindow width="100%"/>
+	
+	</mx:VBox>
 		
-	<!--<local:DepartmentsEditorWindow width="100%" height="100%" />-->
+		<!--<local:DepartmentsEditorWindow width="100%" height="100%" />-->
 		
 	</mx:HBox>
 

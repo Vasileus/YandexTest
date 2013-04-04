@@ -28,7 +28,6 @@ protected function on_creation_complete(event:FlexEvent):void
 {
 	app = this;
 	new Engine();
-	Engine.engine.data_provider = dp;
 	
 	setTimeout(Engine.engine.open_database_connection, 500);
 //	callLater(Engine.engine.open_database_connection, [""]);
@@ -38,43 +37,7 @@ protected function on_creation_complete(event:FlexEvent):void
 [Bindable] private var dp:ArrayCollection = new ArrayCollection();
 
 
-	
-	
-protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class):AppTitleWindow
-{
-	if (papa[ref] != null) {
-		PopUpManager.bringToFront(papa[ref]);
-		return papa[ref];
-	}
-	
-	var w:AppTitleWindow  = papa[ref] = PopUpManager.createPopUp(this, AppTitleWindow , false) as AppTitleWindow;
-	w.addEventListener(CloseEvent.CLOSE, on_app_window_close);
-	
-	w.ref = ref;	
-	w.height = height;
-	w.width  = width;
-	
-	w.title = title;
-	w.holder.addChild(new clazz());
-	//	w.ctrl.addChild(new Button());
-	
-	w.area.setStyle("paddingLeft", 8);
-	w.area.setStyle("paddingRight", 8);	
-	w.area.setStyle("paddingTop", 8);
-	w.area.setStyle("paddingBottom", 8);
-	
-	PopUpManager.centerPopUp(w);	
-	return w;
-}
 
-protected function on_app_window_close(e:Event):void
-{
-	var w:AppTitleWindow = (e.currentTarget as AppTitleWindow); 
-	
-	w.removeEventListener(CloseEvent.CLOSE, on_app_window_close);
-	this[w.ref] = null;
-}
-	
 	
 protected function btn_open_db_clickHandler(event:MouseEvent):void
 {
@@ -110,6 +73,43 @@ public function change_item(id:int, name:String, value:String):void
 	
 [Bindable] protected var list_data:Object = { papa: this };	
 	
+protected var pi_update:int = -1; 
+protected var dp_count:int = 0;
+	
+protected function btn_del_employee_clickHandler(event:MouseEvent):void
+{
+	if (dg.selectedIndex < 0) return;
+	
+	pi_update = dg.selectedIndex;
+	
+	var id:int = (dg.selectedItem as Employee).EmplID;
+	
+	Engine.engine.delete_employee(id);
+	Engine.engine.query_emploeyes();
+}
+
+protected function change_dp(v:int):Boolean
+{
+	if (dp_count == 0 && v != 0) {
+		if (pi_update >= 0) {
+			var len:int = (dg.dataProvider as ArrayCollection).length;
+			if (pi_update >= len)
+				pi_update = len - 1;
+			//dg.selectedIndex = pi_update;
+			callLater(dg_set_index, [pi_update]);
+			
+			pi_update = -1;
+		}
+	}
+	
+	dp_count = v;
+	return true;
+}
+
+private function dg_set_index(i:int):void
+{
+	dg.selectedIndex = i;
+}
 	
 ]]>
 </fx:Script>
@@ -121,7 +121,7 @@ public function change_item(id:int, name:String, value:String):void
 
 		<controls:BarButton label="Отделения" click="{Windows.windows.departments()}" />		
 		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.ico_add}" click="{Windows.windows.add_employee()}" />
-		<controls:BarButton label="Уволить"  icon="{Icons.ico_delete}" />
+		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.ico_delete}" click="btn_del_employee_clickHandler(event)" enabled="{dg.selectedIndex >= 0}" />
 		<s:Spacer width="100%" />
 		<controls:BarButton label="О программе" icon="{Icons.ico_about}" click="{Windows.windows.about()}"/>		
 	</s:HGroup>	
@@ -132,16 +132,17 @@ public function change_item(id:int, name:String, value:String):void
 	<mx:VBox width="100%" height="100%">
 		
 		
-	<controls:DataGridEx width="100%" height="100%" dataProvider="{dp}"  columns="{columns}" user_data="{list_data}"/>
+	<controls:DataGridEx id="dg" width="100%" height="100%" dataProvider="{Engine.engine.emp_dp}" columns="{columns}" user_data="{list_data}"/>
 
 	<mx:HBox width="100%" verticalAlign="middle">
-		<s:Button label="Правка" click="{Windows.windows.edit_employee()}" />
+		<s:Button label="Правка" click="{Windows.windows.edit_employee(dg)}" />
 		<s:Spacer width="20" />
-		<s:Button label="&lt;&lt; Пред. Страница" />
-		<s:Button label="&gt;&gt; След. Страница" />
+		<s:Button label="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" />
+		<s:Button label="&lt;&lt; Пред. Страница" click="{Engine.engine.query_emploeyes_page(-1)}" />
+		<s:Button label="&gt;&gt; След. Страница" click="{Engine.engine.query_emploeyes_page( 1)}"/>
 		<s:Spacer width="100%" />
-		<s:Label text="Кол-во записей : 100(10000000)" />		
-		<s:Button label="Обновить" />
+		<s:Label text="Кол-во записей : {Engine.engine.emp_dp.length} / 10000000" />		
+		<s:Button label="Обновить" click="{Engine.engine.query_emploeyes()}" />
 	</mx:HBox>
 		
 	</mx:VBox>		
@@ -171,6 +172,7 @@ public function change_item(id:int, name:String, value:String):void
 	<mx:DataGridColumn headerText="Должность" width="30" dataField="Position" itemRenderer="renderers.EmpEditItemRenderer"/>			
 </fx:Array>
 	
+<fx:Boolean>{change_dp(Engine.engine.emp_dp.length)}</fx:Boolean>
 	
 	
 </fx:Declarations>

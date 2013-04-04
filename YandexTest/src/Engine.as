@@ -20,9 +20,6 @@ public static function get engine():Engine { return _engine != null ? _engine : 
 [Bindable] public var f_connected:Boolean = false;	
 [Bindable] public var f_try_connect:Boolean = false;
 
-public var data_provider:ArrayCollection;
-
-
 private var _file_name:String = "";
 [Bindable] public  var _disp_name:String = "";
 
@@ -54,7 +51,7 @@ public function close_database_connection():void
 	f_try_connect = false;	
 	f_connected = false;
 	
-	data_provider.source = [];
+	emp_dp.source = [];
 	dep_dp.source = [];
 }
 	
@@ -112,30 +109,68 @@ protected function on_database_open_error(event:SQLErrorEvent):void
 protected function do_database_open():void
 {
 	query_departments();
-
-	var sql:String = "SELECT * FROM Employees ORDER BY EmplID ASC LIMIT 0,100";	
-	query_execute(sql, null, statResult, common_error);
-	
-}
-
-protected function statResult(e:SQLEvent):void
-{
-	var ss:SQLStatement = e.currentTarget as SQLStatement;
-	
-	var result:SQLResult = ss.getResult();
-	data_provider.source = result.data;
+	query_emploeyes();
 }
 
 
 // ----------------------------------------------------------------------------------------------------
 // EMPLOYEE
+public var page_limit:int = 100;
+public var page_start:int = 0;
+
+public var employees:Array = [];
+[Bindable] public var emp_dp:ArrayCollection  = new ArrayCollection();
+
 public function update_employee_field(id:int, name:String, value:String, done:Function = null):void
 {
-	var sql:String = "UPDATE Employees SET " + name + "='" + escape(value) +"' WHERE EmplID='" + id + "'";
+	var sql:String = "UPDATE Employees SET " + name + "='" + escape(value) +"' WHERE EmplID=" + id + "";
 	
 	query_execute(sql, null, common_result, common_error);	
 }
 
+public function query_emploeyes_page(dir:int):void
+{
+	if (dir == 0) page_start = 0;
+	else {
+		page_start += page_limit * dir;
+		if (page_start < 0) page_start = 0;
+	}
+	query_emploeyes();
+}
+
+
+public function query_emploeyes(done:Function = null):void
+{
+	emp_dp.source = [];
+	employees.splice(0);
+	
+	var sql:String = "SELECT * FROM Employees ORDER BY EmplID ASC" + 
+		" LIMIT " + page_start + "," + page_limit + " ";	
+	query_execute(sql, null, query_emploeyes_result, common_error);
+}
+
+protected function query_emploeyes_result(e:SQLEvent):void
+{
+	var ss:SQLStatement = e.currentTarget as SQLStatement;
+	
+	var result:SQLResult = ss.getResult();
+	
+	var a:Array = result.data;	
+
+	for (var i:int = 0; i < a.length; i++) {
+		var o:Object = a[i];
+		employees[i] = new Employee(o['EmplID'], o['DeptID'], o['FirstName'],  o['LastName'], o['Position']);
+//		employees_index[employees[i].EmplID] = i;
+	}
+	
+	emp_dp.source = employees;
+	
+}
+
+public function delete_employee(id:int):void
+{
+	query_execute("DELETE FROM Employees WHERE EmplID=" + id +  "", null, common_result, common_error);
+}
 
 // ----------------------------------------------------------------------------------------------------
 // DEPARTMENTS

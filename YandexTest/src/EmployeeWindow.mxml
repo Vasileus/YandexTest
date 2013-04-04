@@ -8,6 +8,8 @@
 <![CDATA[
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
+	
+	import spark.events.IndexChangeEvent;
 
 [Bindable] public var item:Employee;
 
@@ -39,36 +41,51 @@ protected function get_lbl_width(v:*):Number
 
 
 
-
-
+protected function get_dept_index(id:int):int
+{
+	if (item == null) return -1;
+	
+	var engine:Engine = Engine.engine
+	
+	var i:* = engine.departments_index[id];
+	return i != null ? int(i) : -1;
+}
+	
+	
+protected function inp_Dept_change(event:IndexChangeEvent):void
+{
+	if (item != null) {
+		item.DeptID = (Engine.engine.dep_dp.getItemAt(inp_Dept.selectedIndex) as Department).DeptID;
+	}
+}
 	
 ]]>
 </fx:Script>
-<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" backgroundColor="#F0F0F0" borderStyle="solid" borderColor="#000000" verticalGap="8">
+<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" backgroundColor="#F0F0F0" borderStyle="solid" borderColor="#000000" verticalGap="8" >
 	
 
 <s:HGroup width="100%" verticalAlign="middle">
-	<s:Label id="lbl_FirstName" text="Имя:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" />
-	<s:TextInput id="inp_FirstName" text="@{item.FirstName}" width="100%" maxChars="128" />	
-	<s:Image id="del_FirstName" source="{Icons.ico_delete}" width="24" click="{inp_FirstName.text = ''}" />
+	<s:Label id="lbl_FirstName" text="Имя:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
+	<s:TextInput id="inp_FirstName" text="@{item.FirstName}" width="100%" maxChars="128" enabled="{item != null}" />	
+	<s:Image id="del_FirstName" source="{Icons.ico_delete}" width="24" click="{inp_FirstName.text = ''}"  enabled="{item != null}"/>
 </s:HGroup>
 
 <s:HGroup width="100%" verticalAlign="middle">
-	<s:Label id="lbl_LastName" text="Фамилия:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" />
-	<s:TextInput id="inp_LastName" text="@{item.LastName}" width="100%" maxChars="128" />	
-	<s:Image id="del_LastName" source="{Icons.ico_delete}" width="24" click="{inp_LastName.text = ''}"  />
+	<s:Label id="lbl_LastName" text="Фамилия:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
+	<s:TextInput id="inp_LastName" text="@{item.LastName}" width="100%" maxChars="128" enabled="{item != null}" />	
+	<s:Image id="del_LastName" source="{Icons.ico_delete}" width="24" click="{inp_LastName.text = ''}" enabled="{item != null}" />
 </s:HGroup>
 
 <s:HGroup width="100%" verticalAlign="middle">
-	<s:Label id="lbl_Dept" text="Отделение:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}"/>
-	<s:DropDownList id="inp_Dept" dataProvider="{Engine.engine.dep_dp}" width="100%" labelField="DeptName"/>
-	<s:Image id="del_Dept" source="{Icons.ico_delete}" width="24" click="{inp_Dept.selectedIndex = -1}"  />
+	<s:Label id="lbl_Dept" text="Отделение:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}"/>
+	<s:DropDownList id="inp_Dept" dataProvider="{Engine.engine.dep_dp}" width="100%" labelField="DeptName" selectedIndex="{item != null ? get_dept_index(item.DeptID) : -1}" change="inp_Dept_change(event)" enabled="{item != null}"/>
+	<s:Image id="del_Dept" source="{Icons.ico_delete}" width="24" click="{if (item!= null) item.DeptID = 0}" enabled="{item != null}" />
 </s:HGroup>
 	
 <s:HGroup width="100%" verticalAlign="middle">
-	<s:Label id="lbl_Position" text="Должность:" minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" />
-	<s:TextInput id="inp_Position" text="@{item.Position}" width="100%" maxChars="128" />	
-	<s:Image id="del_Position" source="{Icons.ico_delete}" width="24" click="{inp_Position.text = ''}" />
+	<s:Label id="lbl_Position" text="Должность:" minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
+	<s:TextInput id="inp_Position" text="@{item.Position}" width="100%" maxChars="128" enabled="{item != null}" />	
+	<s:Image id="del_Position" source="{Icons.ico_delete}" width="24" click="{inp_Position.text = ''}" enabled="{item != null}" />
 </s:HGroup>
 	
 	

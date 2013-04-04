@@ -56,10 +56,13 @@ public override function get data():Object
 
 public override function set data(value:Object):void
 {
+//	if (super.data == value) return;
+	
 	super.data = value;
 	ini_changer();
 
 	if (!f_text_inp_focused) {
+		changer = null;
 		inp.text = get_value();
 	}
 }
@@ -92,8 +95,8 @@ protected function set_value(s:String):void
 protected function get_id():int
 {
 	if (data == null || _listData == null) return -1;
-	return data.EmplID;
-//	return data[(data as Employee).EmplID];
+//	return data.EmplID;
+	return (data as Employee).EmplID;
 }
 
 	
@@ -105,7 +108,6 @@ protected function get_id():int
 	
 protected function ini_changer():void
 {
-	changer = null;
 	if (_listData == null || data == null) {
 		return;
 	}

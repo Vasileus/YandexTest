@@ -1,5 +1,7 @@
 package
 {
+import controls.DataGridEx;
+
 import flash.events.Event;
 
 import mx.events.CloseEvent;
@@ -40,15 +42,20 @@ public function add_employee():void
 
 protected var wnd_edit_employee:AppTitleWindow;
 
-public function edit_employee():void
+public function edit_employee(dg:DataGridEx):void
 {
+	var f_first_ini:Boolean = wnd_edit_employee == null;
 	open_window(this, "wnd_edit_employee", "Правка сотрудника",  480, 400, EditEmployeeWindow);
-	
+	if (f_first_ini) {
+		var w:AppTitleWindow  = wnd_edit_employee;
+		var o:EditEmployeeWindow = w.holder.getChildAt(0) as EditEmployeeWindow;
+		o.set_dg(dg);
+	}
 }
 
 
 
-protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class):AppTitleWindow
+protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class, ini:Object = null):AppTitleWindow
 {
 	if (papa[ref] != null) {
 		PopUpManager.bringToFront(papa[ref]);

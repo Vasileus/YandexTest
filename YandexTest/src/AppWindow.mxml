@@ -139,10 +139,11 @@ public function change_item(id:int, name:String, value:String):void
 		
 	<controls:DataGridEx width="100%" height="100%" dataProvider="{dp}"  columns="{columns}" user_data="{list_data}"/>
 
-	<mx:HBox width="100%">
-		<s:Button label="Удалить" />
-		<s:Button label="Добавить" />		
-		
+	<mx:HBox width="100%" verticalAlign="middle">
+		<s:Button label="&lt;&lt; Пред. Страница" />
+		<s:Button label="&gt;&gt; След. Страница" />
+		<s:Spacer width="100%" />
+		<s:Label text="Кол-во записей : 100(10000000)" />		
 	</mx:HBox>
 		
 	</mx:VBox>		

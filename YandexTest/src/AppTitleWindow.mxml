@@ -2,16 +2,17 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
-			   width="400" height="300"
+
 			   creationComplete="on_creation_complete(event)"
 >
 <fx:Script>
 <![CDATA[
-	import mx.events.CloseEvent;
-	import mx.events.FlexEvent;
-	import mx.managers.PopUpManager;
+import mx.events.CloseEvent;
+import mx.events.FlexEvent;
+import mx.managers.PopUpManager;
 
-
+public var ref:String = null;
+	
 protected function on_creation_complete(event:FlexEvent):void
 {
 	addEventListener(CloseEvent.CLOSE, on_close);

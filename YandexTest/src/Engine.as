@@ -119,6 +119,16 @@ protected function do_database_open():void
 }
 
 // ----------------------------------------------------------------------------------------------------
+// EMPLOYEE
+public function update_employee_field(id:int, name:String, value:String, done:Function = null):void
+{
+	var sql:String = "UPDATE Employees SET " + name + "='" + escape(value) +"' WHERE EmplID='" + id + "'";
+	
+	query_execute(sql, null, common_result, common_error);	
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 // DEPARTMENTS
 public var departments:Array = [];
 public var departments_index:Object = {};
@@ -240,15 +250,18 @@ protected function apply_departments_changes_error(e:SQLErrorEvent):void
 
 
 // ----------------------------------------------------------------------------------------------------
-//private var sqlStat:SQLStatement;
-protected function query_execute(sql:String, params:Object, result:Function, error:Function):void
+
+protected function query_execute(sql:String, params:Object, result:Function, error:Function):Boolean
 {
+	if (sqlConnection == null) return false;
+	
 	var ss:SQLStatement = new SQLStatement();
 	ss.sqlConnection = sqlConnection;
 	ss.text = sql;
 	ss.addEventListener(SQLEvent.RESULT, result);
 	ss.addEventListener(SQLErrorEvent.ERROR, error);
 	ss.execute();	
+	return true;
 }
 
 
@@ -258,6 +271,11 @@ protected function statResult(e:SQLEvent):void
 
 	var result:SQLResult = ss.getResult();
 	data_provider.source = result.data;
+}
+
+protected function common_result(e:SQLEvent):void
+{
+	var a:int = 0;
 }
 
 protected function common_error(e:SQLErrorEvent):void

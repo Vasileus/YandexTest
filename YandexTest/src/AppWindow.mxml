@@ -11,6 +11,7 @@
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.IFlexDisplayObject;
+	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
 	import mx.managers.PopUpManager;
 	
@@ -23,20 +24,45 @@ protected function on_creation_complete(event:FlexEvent):void
 {
 	new Engine();
 	Engine.engine.data_provider = dp;
-	Engine.engine.open_database_connection("");
+	
+	callLater(Engine.engine.open_database_connection, [""]);
+//	Engine.engine.open_database_connection("");
 }
 
 [Bindable] private var dp:ArrayCollection = new ArrayCollection();
 
+protected var wnd_departments:AppTitleWindow;
 	
-protected function barbutton1_clickHandler(event:MouseEvent):void
+protected function btn_departments_clickHandler(event:MouseEvent):void
 {
-	var wnd:IFlexDisplayObject = PopUpManager.createPopUp(this, AppTitleWindow , false);
-	var w:AppTitleWindow = wnd as AppTitleWindow;
+	open_window(this, "wnd_departments", "Отделения",  400, 400, DepartmentsEditorWindow);
+}
+
+protected var wnd_about:AppTitleWindow;
+
+protected function btn_about_clickHandler(event:MouseEvent):void
+{
+	open_window(this, "wnd_about", "О программе",  300, 260, AboutWindow);
+}
 	
-	w.title = "Отделения";
-	w.holder.addChild(new DepartmentsEditorWindow());
-//	w.ctrl.addChild(new Button());
+	
+protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class):AppTitleWindow
+{
+	if (papa[ref] != null) {
+		PopUpManager.bringToFront(papa[ref]);
+		return papa[ref];
+	}
+	
+	var w:AppTitleWindow  = papa[ref] = PopUpManager.createPopUp(this, AppTitleWindow , false) as AppTitleWindow;
+	w.addEventListener(CloseEvent.CLOSE, on_app_window_close);
+	
+	w.ref = ref;	
+	w.height = height;
+	w.width  = width;
+	
+	w.title = title;
+	w.holder.addChild(new clazz());
+	//	w.ctrl.addChild(new Button());
 	
 	w.area.setStyle("paddingLeft", 8);
 	w.area.setStyle("paddingRight", 8);	
@@ -44,31 +70,17 @@ protected function barbutton1_clickHandler(event:MouseEvent):void
 	w.area.setStyle("paddingBottom", 8);
 	
 	PopUpManager.centerPopUp(w);	
+	return w;
 }
-	
-protected function barbutton2_clickHandler(event:MouseEvent):void
+
+protected function on_app_window_close(e:Event):void
 {
-
-	var wnd:IFlexDisplayObject = PopUpManager.createPopUp(this, AppTitleWindow , false);
-	var w:AppTitleWindow = wnd as AppTitleWindow;
+	var w:AppTitleWindow = (e.currentTarget as AppTitleWindow); 
 	
-	w.title = "О программе";
-
-	w.area.setStyle("paddingLeft", 8);
-	w.area.setStyle("paddingRight", 8);	
-	w.area.setStyle("paddingTop", 8);
-	w.area.setStyle("paddingBottom", 8);
-
-	w.ctrl.setStyle("horizontalAlign", "right");
-	
-	var btn:Button = new Button();
-	btn.label = "Закрыть";
-	btn.addEventListener(MouseEvent.CLICK, w.close_event, false, 0, true);
-		
-	w.ctrl.addChild(btn);	
-	
-	PopUpManager.centerPopUp(wnd);
+	w.removeEventListener(CloseEvent.CLOSE, on_app_window_close);
+	this[w.ref] = null;
 }
+	
 	
 protected function btn_open_db_clickHandler(event:MouseEvent):void
 {
@@ -93,7 +105,16 @@ protected function on_file_selected(e:Event):void
 	
 	Engine.engine.open_database_connection(file_name, disp_name);	
 }	
+
+public function change_item(id:int, name:String, value:String):void
+{
+	Engine.engine.update_employee_field(id, name, value);
+
+
+}
 	
+	
+[Bindable] protected var list_data:Object = { papa: this };	
 	
 ]]>
 </fx:Script>
@@ -103,11 +124,11 @@ protected function on_file_selected(e:Event):void
 		<controls:BarButton id="btn_open_db" label="Открыть DB Файл" icon="{Icons.ico_database}" click="btn_open_db_clickHandler(event)" />
 		<s:Spacer width="40" />
 
-		<controls:BarButton label="Отделения" click="barbutton1_clickHandler(event)" />		
+		<controls:BarButton label="Отделения" click="btn_departments_clickHandler(event)" />		
 		<controls:BarButton label="Добавить" icon="{Icons.ico_add}" />
 		<controls:BarButton label="Уволить"  icon="{Icons.ico_delete}" />
 		<s:Spacer width="100%" />
-		<controls:BarButton label="О программе" icon="{Icons.ico_about}" click="barbutton2_clickHandler(event)"/>		
+		<controls:BarButton label="О программе" icon="{Icons.ico_about}" click="btn_about_clickHandler(event)"/>		
 	</s:HGroup>	
 	
 	<mx:HBox width="100%" height="100%">
@@ -116,18 +137,8 @@ protected function on_file_selected(e:Event):void
 	<mx:VBox width="100%" height="100%">
 		
 		
-	<mx:DataGrid width="100%" height="100%" dataProvider="{dp}">
-		<mx:columns>
-			<fx:Array>
-				<mx:DataGridColumn headerText="ID" width="10" dataField="EmplID"/>
-				<mx:DataGridColumn headerText="Имя" width="30" dataField="FirstName"/>
-				<mx:DataGridColumn headerText="Фамилия" width="30" dataField="LastName"/>	
-				<mx:DataGridColumn headerText="Отделение" width="30" dataField="DeptID" itemRenderer="renderers.DeptItemRenderer"/>
-				<mx:DataGridColumn headerText="Должность" width="30" dataField="Position"/>			
-			
-			</fx:Array>
-		</mx:columns>			
-	</mx:DataGrid>
+	<controls:DataGridEx width="100%" height="100%" dataProvider="{dp}"  columns="{columns}" user_data="{list_data}"/>
+
 	<mx:HBox width="100%">
 		<s:Button label="Удалить" />
 		<s:Button label="Добавить" />		
@@ -135,8 +146,10 @@ protected function on_file_selected(e:Event):void
 	</mx:HBox>
 		
 	</mx:VBox>		
+	
+	<mx:VBox width="400" height="100%" backgroundColor="#EEEEEE" />
 		
-	<local:DepartmentsEditorWindow width="100%" height="100%" />
+	<!--<local:DepartmentsEditorWindow width="100%" height="100%" />-->
 		
 	</mx:HBox>
 
@@ -145,5 +158,15 @@ protected function on_file_selected(e:Event):void
 <local:StatusBar />
 	
 <fx:Declarations>
+<fx:Array id="columns">
+	<mx:DataGridColumn headerText="ID" width="10" dataField="EmplID"/>
+	<mx:DataGridColumn headerText="Имя" width="30" dataField="FirstName" itemRenderer="renderers.EmpEditItemRenderer"/>
+	<mx:DataGridColumn headerText="Фамилия" width="30" dataField="LastName" itemRenderer="renderers.EmpEditItemRenderer"/>	
+	<mx:DataGridColumn headerText="Отделение" width="30" dataField="DeptID" itemRenderer="renderers.DeptItemRenderer"/>
+	<mx:DataGridColumn headerText="Должность" width="30" dataField="Position" itemRenderer="renderers.EmpEditItemRenderer"/>			
+</fx:Array>
+	
+	
+	
 </fx:Declarations>
 </mx:VBox>

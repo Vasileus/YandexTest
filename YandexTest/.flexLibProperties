@@ -11,6 +11,8 @@
     <classEntry path="Changer"/>
     <classEntry path="controls.ListEx"/>
     <classEntry path="controls.ObjectEx"/>
+    <classEntry path="controls.DataGridEx"/>
+    <classEntry path="AboutWindow"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

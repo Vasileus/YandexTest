@@ -84,7 +84,14 @@ protected function ini_changer():void
 	changer = list.user_data.changer[id];
 
 }
-	
+
+protected function focus_to_list():void	
+{
+	if (_listData != null && (_listData.owner is UIComponent)) {
+		(_listData.owner as UIComponent).setFocus();
+	}
+}
+
 
 protected function mark_deleted():void
 {
@@ -142,10 +149,7 @@ protected function foc_out():void
 //	removeChild(inp_name);
 //	addChildAt(lbl_name, numChildren);
 	invalidateDisplayList();
-	
-	if (_listData != null && (_listData.owner is UIComponent)) {
-		(_listData.owner as UIComponent).setFocus();
-	}
+	focus_to_list();
 }
 
 protected function inp_name_enterHandler(event:FlexEvent):void
@@ -174,7 +178,7 @@ protected function inp_name_keyDownHandler(event:KeyboardEvent):void
 			
 		case Keyboard.ESCAPE:
 			revert();
-			(parent as UIComponent).setFocus();			
+			focus_to_list();			
 //			event.stopPropagation();			
 			return;
 	}

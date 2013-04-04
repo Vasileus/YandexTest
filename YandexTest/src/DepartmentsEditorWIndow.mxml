@@ -11,6 +11,7 @@
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
+	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
 	import mx.events.ListEvent;
 	import mx.utils.ObjectProxy;
@@ -209,6 +210,12 @@ protected function query_departments_done():void
 //	dp = Engine.engine.dep_dp;	
 }
 
+protected function btn_close_clickHandler(event:MouseEvent):void
+{
+	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true));
+	
+}
+	
 ]]>
 </fx:Script>
 
@@ -223,7 +230,7 @@ protected function query_departments_done():void
 <mx:HBox width="100%" horizontalAlign="right">
 	<s:Button id="btn_apply" label="Применить" enabled="{!f_apply &amp;&amp; changer._ != 0 }" click="btn_apply_clickHandler(event)"  />	
 	<s:Button id="btn_discard" label="Сбросить" enabled="{!f_apply &amp;&amp; changer._ != 0}" click="btn_discard_clickHandler(event)" />
-	<s:Button id="btn_close" label="Закрыть" enabled="{!f_apply &amp;&amp; changer._  == 0}" />
+	<s:Button id="btn_close" label="Закрыть" enabled="{!f_apply &amp;&amp; changer._  == 0}" click="btn_close_clickHandler(event)" />
 </mx:HBox>	
 	
 	

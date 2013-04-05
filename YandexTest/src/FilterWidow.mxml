@@ -41,6 +41,17 @@ protected function btn_del_employees_clickHandler(event:MouseEvent):void
 
 //enabled="{dg.selectedIndex >= 0}"	
 	
+protected function on_replace_to_department(event:MouseEvent):void
+{
+	var id:int = 0;
+	if (inp_Dept.selectedItem != null) {
+		id = (inp_Dept.selectedItem as Department).DeptID
+	}
+	
+	Engine.engine.replace_employees_to_department_by_flter(id);
+	on_refresh();	
+}
+	
 ]]>
 </fx:Script>
 	
@@ -76,7 +87,7 @@ protected function btn_del_employees_clickHandler(event:MouseEvent):void
 <s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}" paddingLeft="20" paddingRight="20">	
 	<s:DropDownList id="inp_Dept" dataProvider="{Engine.engine.dep_dp}" width="100%" labelField="DeptName"  />
 	<s:Image id="del_Dept" source="{Icons.ico_delete}" width="24" click="{inp_Dept.selectedIndex = -1}"   />
-	<s:Button label="Перевести" />
+	<s:Button label="Перевести" click="on_replace_to_department(event)" />
 </s:HGroup>
 
 </s:VGroup>	

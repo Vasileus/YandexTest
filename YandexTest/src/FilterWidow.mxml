@@ -15,20 +15,22 @@ protected function on_creation_complete(event:FlexEvent):void
 	
 	
 	
-protected function on_refresh(event:MouseEvent):void
+protected function on_refresh(event:MouseEvent = null):void
 {
 	Engine.engine.query_emploeyes_page(0);
 	
 }
 
 
-protected function button1_clickHandler(event:MouseEvent):void
+protected function on_reset(event:MouseEvent):void
 {
 	wnd.item.DeptID = 0;
 	wnd.item.FirstName = "";	
 	wnd.item.LastName = "";
 	wnd.item.Position = "";
+	on_refresh();
 }
+
 	
 	
 ]]>
@@ -46,9 +48,10 @@ protected function button1_clickHandler(event:MouseEvent):void
 
 	
 	
-<s:HGroup width="100%" horizontalAlign="center"  enabled="{Engine.engine.f_use_filter}">
+<s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}">
+	<s:CheckBox label="LIKE" selected="@{Engine.engine.f_filter_like}" click="on_refresh(event)" />
 	<s:Button label="Применить Фильтр" click="on_refresh(event)" />	
-	<s:Button label="Сбросить Фильтр" click="button1_clickHandler(event)" />
+	<s:Button label="Сбросить Фильтр" click="on_reset(event)" />
 	
 	
 </s:HGroup>

@@ -117,6 +117,7 @@ protected function do_database_open():void
 // ----------------------------------------------------------------------------------------------------
 // EMPLOYEE
 [Bindable] public var f_use_filter:Boolean = false;
+[Bindable] public var f_filter_like:Boolean = true;
 [Bindable] public var filter:Employee = new Employee(0, 0, "", "", "");
 
 
@@ -157,17 +158,27 @@ public function filter_string():String
 
 	if (filter.FirstName != "") {
 		s += s == "" ? "" : " AND ";
-		s += "FirstName=" + "'" + escape(filter.FirstName) + "'";
+		
+		if (f_filter_like)
+			s += "FirstName LIKE " + "'" + escape(filter.FirstName) + "%'";		
+		else
+			s += "FirstName=" + "'" + escape(filter.FirstName) + "'";
 	}
 	
 	if (filter.LastName != "") {
 		s += s == "" ? "" : " AND ";
-		s += "LastName=" + "'" + escape(filter.LastName) + "'";
+		if (f_filter_like)
+			s += "LastName LIKE " + "'" + escape(filter.LastName) + "%'";		
+		else
+			s += "LastName=" + "'" + escape(filter.LastName) + "'";
 	}
 
 	if (filter.Position != "") {
 		s += s == "" ? "" : " AND ";
-		s += "Position=" + "'" + escape(filter.Position) + "'";
+		if (f_filter_like)
+			s += "Position LIKE " + "'" + escape(filter.Position) + "%'";		
+		else
+			s += "Position=" + "'" + escape(filter.Position) + "'";
 	}
 	
 	s = StringUtil.trim(s);

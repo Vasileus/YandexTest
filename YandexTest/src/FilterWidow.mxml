@@ -33,11 +33,11 @@ protected function on_reset(event:MouseEvent):void
 
 	
 	
-	protected function btn_del_employees_clickHandler(event:MouseEvent):void
-	{
-		// TODO Auto-generated method stub
-		
-	}
+protected function btn_del_employees_clickHandler(event:MouseEvent):void
+{
+	Engine.engine.delete_employees_by_flter();
+	on_refresh();
+}
 
 //enabled="{dg.selectedIndex >= 0}"	
 	

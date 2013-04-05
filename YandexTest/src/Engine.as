@@ -225,6 +225,12 @@ public function delete_employee(id:int):void
 	query_execute(sql, null, common_result, common_error);
 }
 
+public function delete_employees_by_flter():void
+{
+	var sql:String = "DELETE FROM Employees " + filter_string() +  "";
+	query_execute(sql, null, common_result, common_error);
+}
+
 public function add_employee(e:Employee):void
 {
 	var sql:String = "INSERT INTO Employees (DeptID,FirstName,LastName,Position) VALUES" +

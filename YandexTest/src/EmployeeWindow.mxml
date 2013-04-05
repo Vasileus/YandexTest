@@ -71,9 +71,8 @@ protected function foc_out(e:FocusEvent):void
 
 	if (item != null) {
 		item[fn] = text;
+		change_item(item.EmplID, fn, text);
 	}
-
-	change_item(item.EmplID, fn, text);
 }
 	
 public var change_item:Function = function():void {}
@@ -91,7 +90,9 @@ protected function inp_change(e:TextOperationEvent):void
 	
 protected function dept_out(event:FocusEvent):void
 {
-	change_item(item.EmplID, "DeptID", item.DeptID);
+	if (item != null) {
+		change_item(item.EmplID, "DeptID", item.DeptID);
+	}
 }
 	
 ]]>
@@ -102,13 +103,13 @@ protected function dept_out(event:FocusEvent):void
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_FirstName" text="Имя:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
 	<s:TextInput id="inp_FirstName" text="{item.FirstName}" width="100%" maxChars="128" enabled="{item != null}" change="inp_change(event)" focusOut="foc_out(event)" />	
-	<s:Image id="del_FirstName" source="{Icons.ico_delete}" width="24" click="{inp_FirstName.text = ''}"  enabled="{item != null}" />
+	<s:Image id="del_FirstName" source="{Icons.ico_delete}" width="24" click="{inp_FirstName.text = ''; if (item != null) item.FirstName = ''}"  enabled="{item != null}" />
 </s:HGroup>
 
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_LastName" text="Фамилия:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
 	<s:TextInput id="inp_LastName" text="{item.LastName}" width="100%" maxChars="128" enabled="{item != null}" change="inp_change(event)" focusOut="foc_out(event)"/>	
-	<s:Image id="del_LastName" source="{Icons.ico_delete}" width="24" click="{inp_LastName.text = ''}" enabled="{item != null}" />
+	<s:Image id="del_LastName" source="{Icons.ico_delete}" width="24" click="{inp_LastName.text = ''; if (item != null) item.LastName = ''}" enabled="{item != null}" />
 </s:HGroup>
 
 <s:HGroup width="100%" verticalAlign="middle">
@@ -120,7 +121,7 @@ protected function dept_out(event:FocusEvent):void
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_Position" text="Должность:" minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
 	<s:TextInput id="inp_Position" text="{item.Position}" width="100%" maxChars="128" enabled="{item != null}" change="inp_change(event)" focusOut="foc_out(event)"/>	
-	<s:Image id="del_Position" source="{Icons.ico_delete}" width="24" click="{inp_Position.text = ''}" enabled="{item != null}" />
+	<s:Image id="del_Position" source="{Icons.ico_delete}" width="24" click="{inp_Position.text = ''; if (item != null) item.Position = '' }" enabled="{item != null}" />
 </s:HGroup>
 	
 	

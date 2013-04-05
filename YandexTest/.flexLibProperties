@@ -15,6 +15,7 @@
     <classEntry path="AboutWindow"/>
     <classEntry path="EmployeeWindow"/>
     <classEntry path="Windows"/>
+    <classEntry path="FilterWidow"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

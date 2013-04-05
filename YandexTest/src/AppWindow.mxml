@@ -148,13 +148,9 @@ private function dg_set_index(i:int):void
 		
 	</mx:VBox>		
 	
-	<mx:VBox width="400" height="100%" backgroundColor="#EEEEEE">
-		<mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
-			<s:Label text="Фильтр" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
-		</mx:HBox>
-		<local:EmployeeWindow width="100%"/>
+	<local:FilterWidow />
 	
-	</mx:VBox>
+
 		
 		<!--<local:DepartmentsEditorWindow width="100%" height="100%" />-->
 		

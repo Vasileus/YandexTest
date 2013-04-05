@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="100%" xmlns:local="*" backgroundColor="#EEEEEE" 
+		 paddingLeft="8" paddingRight="8" paddingBottom="8" paddingTop="8" borderColor="#808080" borderVisible="true" borderStyle="solid" creationComplete="on_creation_complete(event)">
+	
+<fx:Script>
+<![CDATA[
+import mx.events.FlexEvent;
+
+protected function on_creation_complete(event:FlexEvent):void
+{
+	wnd.item = Engine.engine.filter;	
+}
+	
+	
+	
+protected function on_refresh(event:MouseEvent):void
+{
+	Engine.engine.query_emploeyes_page(0);
+	
+}
+
+
+protected function button1_clickHandler(event:MouseEvent):void
+{
+	wnd.item.DeptID = 0;
+	wnd.item.FirstName = "";	
+	wnd.item.LastName = "";
+	wnd.item.Position = "";
+}
+	
+	
+]]>
+</fx:Script>
+	
+	
+<mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
+	<s:Label text="Фильтр" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
+</mx:HBox>
+<s:HGroup width="100%" horizontalAlign="center">
+<s:CheckBox label="Включить Фильтр" selected="@{Engine.engine.f_use_filter}" click="on_refresh(event)" />	
+</s:HGroup>
+	
+<local:EmployeeWindow id="wnd" width="100%" enabled="{Engine.engine.f_use_filter}"/>
+
+	
+	
+<s:HGroup width="100%" horizontalAlign="center"  enabled="{Engine.engine.f_use_filter}">
+	<s:Button label="Применить Фильтр" click="on_refresh(event)" />	
+	<s:Button label="Сбросить Фильтр" click="button1_clickHandler(event)" />
+	
+	
+</s:HGroup>
+	
+	
+	
+<fx:Declarations>
+</fx:Declarations>
+</mx:VBox>

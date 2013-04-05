@@ -11,6 +11,7 @@ import flash.events.SQLEvent;
 import flash.filesystem.File;
 
 import mx.collections.ArrayCollection;
+import mx.utils.StringUtil;
 
 public class Engine
 {
@@ -115,6 +116,10 @@ protected function do_database_open():void
 
 // ----------------------------------------------------------------------------------------------------
 // EMPLOYEE
+[Bindable] public var f_use_filter:Boolean = false;
+[Bindable] public var filter:Employee = new Employee(0, 0, "", "", "");
+
+
 public var page_limit:int = 100;
 public var page_start:int = 0;
 
@@ -140,13 +145,46 @@ public function query_emploeyes_page(dir:int):void
 	query_emploeyes();
 }
 
+public function filter_string():String
+{
+	if (!f_use_filter) return " "; 
+	var s:String = "";
+
+	if (filter.DeptID > 0) {
+		s += s == "" ? "" : " AND ";
+		s += "DeptID=" + filter.DeptID;
+	}
+
+	if (filter.FirstName != "") {
+		s += s == "" ? "" : " AND ";
+		s += "FirstName=" + "'" + escape(filter.FirstName) + "'";
+	}
+	
+	if (filter.LastName != "") {
+		s += s == "" ? "" : " AND ";
+		s += "LastName=" + "'" + escape(filter.LastName) + "'";
+	}
+
+	if (filter.Position != "") {
+		s += s == "" ? "" : " AND ";
+		s += "Position=" + "'" + escape(filter.Position) + "'";
+	}
+	
+	s = StringUtil.trim(s);
+	if ( s != "") {
+		s = " WHERE " + s;
+	}
+	
+	return s + " ";
+}
+	
 
 public function query_emploeyes(done:Function = null):void
 {
 	emp_dp.source = [];
 	employees.splice(0);
 	
-	var sql:String = "SELECT * FROM Employees ORDER BY EmplID ASC" + 
+	var sql:String = "SELECT * FROM Employees" + filter_string() + "ORDER BY EmplID ASC" + 
 		" LIMIT " + page_start + "," + page_limit + " ";	
 	query_execute(sql, null, query_emploeyes_result, common_error);
 }
@@ -159,11 +197,12 @@ protected function query_emploeyes_result(e:SQLEvent):void
 	
 	var a:Array = result.data;	
 
+	if (a != null) {	
 	for (var i:int = 0; i < a.length; i++) {
 		var o:Object = a[i];
 		employees[i] = new Employee(o['EmplID'], o['DeptID'], o['FirstName'],  o['LastName'], o['Position']);
 //		employees_index[employees[i].EmplID] = i;
-	}
+	}}
 	
 	emp_dp.source = employees;
 	

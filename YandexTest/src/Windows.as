@@ -46,6 +46,14 @@ public function confirm_delete():void
 	open_window(this, "wnd_confirm_delete", "Подтвердждение Увольнения",  340, 240, ConfirmDeleteWindow, true);
 }
 
+protected var wnd_sqlog:AppTitleWindow;
+
+public function sqlog():void
+{
+	open_window(this, "wnd_sqlog", "SQLog",  700, 500, SQLogWindow, false);
+}
+
+
 
 protected var wnd_edit_employee:AppTitleWindow;
 

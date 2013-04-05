@@ -4,6 +4,7 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 width="100%" height="100%" xmlns:local="*"
 		 creationComplete="on_creation_complete(event)" xmlns:controls="controls.*"
+		 initialize="on_initialize(event)"
 >
 <fx:Script>
 <![CDATA[
@@ -12,6 +13,7 @@
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.IFlexDisplayObject;
+	import mx.core.Window;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
 	import mx.managers.PopUpManager;
@@ -23,12 +25,17 @@
 
 	
 public static var app:AppWindow;
+[Bindable] public var engine:Engine = Engine.engine;
+	
+	
+protected function on_initialize(event:FlexEvent):void
+{
+	app = this;	
+}
+	
 	
 protected function on_creation_complete(event:FlexEvent):void
 {
-	app = this;
-	new Engine();
-	
 	setTimeout(Engine.engine.open_database_connection, 500);
 //	callLater(Engine.engine.open_database_connection, [""]);
 //	Engine.engine.open_database_connection("");
@@ -60,14 +67,12 @@ protected function on_file_selected(e:Event):void
 	var file_name:String = fr.nativePath;
 	var disp_name:String = fr.name;
 	
-	Engine.engine.open_database_connection(file_name, disp_name);	
+	engine.open_database_connection(file_name, disp_name);	
 }	
 
 public function change_item(id:int, name:String, value:String):void
 {
-	Engine.engine.update_employee_field(id, name, value);
-
-
+	engine.update_employee_field(id, name, value);
 }
 	
 	
@@ -84,8 +89,8 @@ protected function btn_del_employee_clickHandler(event:MouseEvent):void
 	
 	var id:int = (dg.selectedItem as Employee).EmplID;
 	
-	Engine.engine.delete_employee(id);
-	Engine.engine.query_emploeyes();
+	engine.delete_employee(id);
+	engine.query_emploeyes();
 }
 
 protected function change_dp(v:int):Boolean
@@ -112,19 +117,29 @@ private function dg_set_index(i:int):void
 	dg.scrollToIndex(dg.selectedIndex);
 }
 	
+	
+protected function dg_double_click(event:MouseEvent):void
+{
+	if (dg.selectedIndex < 0) return;
+	Windows.windows.edit_employee(dg);
+}
+	
 ]]>
 </fx:Script>
 <mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8">
 	
 	<s:HGroup width="100%">
-		<controls:BarButton id="btn_open_db" label="Открыть DB Файл" icon="{Icons.ico_database}" click="btn_open_db_clickHandler(event)" />
+		<controls:BarButton id="btn_open_db" label="Открыть DB Файл" icon="{Icons.database}" click="btn_open_db_clickHandler(event)" />
 		<s:Spacer width="40" />
 
 		<controls:BarButton label="Отделения" click="{Windows.windows.departments()}" />		
-		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.ico_add}" click="{Windows.windows.add_employee()}" />
-		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.ico_delete}" click="btn_del_employee_clickHandler(event)" enabled="{dg.selectedIndex >= 0}" />
+		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.add}" click="{Windows.windows.add_employee()}" enabled="{Engine.engine.f_connected}" />
+		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.remove}" click="btn_del_employee_clickHandler(event)" enabled="{dg.selectedIndex >= 0}" />
 		<s:Spacer width="100%" />
-		<controls:BarButton label="О программе" icon="{Icons.ico_about}" click="{Windows.windows.about()}"/>		
+		
+		<controls:BarButton label="SQLog" icon="{Icons.notebook}" click="{Windows.windows.sqlog()}"/>
+		<s:Spacer width="20" />
+		<controls:BarButton label="О программе" icon="{Icons.about}" click="{Windows.windows.about()}"/>		
 	</s:HGroup>	
 	
 	<mx:HBox width="100%" height="100%">
@@ -133,24 +148,24 @@ private function dg_set_index(i:int):void
 	<mx:VBox width="100%" height="100%">
 		
 		
-	<controls:DataGridEx id="dg" width="100%" height="100%" dataProvider="{Engine.engine.emp_dp}" columns="{columns}" user_data="{list_data}"/>
+	<controls:DataGridEx id="dg" width="100%" height="100%" dataProvider="{Engine.engine.emp_dp}" columns="{columns}" user_data="{list_data}" doubleClick="dg_double_click(event)" doubleClickEnabled="true"/>
 		
 	<mx:HBox width="100%" verticalAlign="middle">
-		<s:Button label="Правка" click="{Windows.windows.edit_employee(dg)}" />
+		<controls:BarButton label="Правка" click="{Windows.windows.edit_employee(dg)}" icon="{Icons.data_edit}" />
 		<s:Spacer width="20" />
-		<s:Label id="lbl_page" text="Страница : {Engine.engine.page_start + 1} из {Engine.engine.page_total}" paddingTop="4" minWidth="{lbl_page.width}"/>
-		<s:Button label="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" />
-		<s:Button label="&lt;&lt; Пред. Страница" click="{Engine.engine.query_emploeyes_page(-1)}" />
-		<s:Button label="&gt;&gt; След. Страница" click="{Engine.engine.query_emploeyes_page( 1)}"/>
-		<s:Button label="Посл. Страница" click="{Engine.engine.query_emploeyes_page(Engine.engine.page_total - 1)}" />
+		<s:Label id="lbl_page" text="Страница : {Utils.fmt_int(engine.page_start + 1)} из {engine.page_total != 0 ? Utils.fmt_int(engine.page_total) : 1 }" paddingTop="4" minWidth="{lbl_page.width}"/>
+		<controls:BarButton label="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" />
+		<controls:BarButton label="&lt;&lt; Пред. Страница" click="{engine.query_emploeyes_page(-1)}" />
+		<controls:BarButton label="&gt;&gt; След. Страница" click="{engine.query_emploeyes_page( 1)}"/>
+		<controls:BarButton label="Посл. Страница" click="{engine.query_emploeyes_page(engine.page_total - 1)}" />
 		<s:Spacer width="100%" />
-		<s:Label id="lbl_rec" text="Кол-во записей : {Engine.engine.emp_dp.length} / {Engine.engine.employee_num_records}" paddingTop="4" minWidth="{lbl_rec.width}"/>		
-		<s:Button label="Обновить" click="{Engine.engine.query_emploeyes()}" />
+		<s:Label id="lbl_rec" text="Кол-во записей : {Utils.fmt_int(engine.emp_dp.length)} / {Utils.fmt_int(engine.employee_num_records)}" paddingTop="4" minWidth="{lbl_rec.width}"/>		
+		<controls:BarButton label="Обновить" click="{Engine.engine.query_emploeyes()}" />
 	</mx:HBox>
 		
 	</mx:VBox>		
 	
-	<local:FilterWidow />
+	<local:FilterWindow />
 	
 
 		

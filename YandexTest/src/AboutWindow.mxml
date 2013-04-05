@@ -10,7 +10,11 @@
 		]]>
 	</fx:Script>
 
+<s:HGroup gap="20">
+<s:Image source="@Embed(source='./assets/data_table.png')" />
 <s:Image source="@Embed(source='./assets/yandex.png')" />
+</s:HGroup>
+	
 <s:Spacer height="20" />
 		  
 <s:Label text="Тестовое SQLite приложение"	/>

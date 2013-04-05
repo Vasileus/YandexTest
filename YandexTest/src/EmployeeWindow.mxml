@@ -6,6 +6,7 @@
 >
 <fx:Script>
 <![CDATA[
+	import mx.collections.ArrayCollection;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
 	import mx.utils.StringUtil;
@@ -14,7 +15,7 @@
 	import spark.events.TextOperationEvent;
 
 [Bindable] public var item:Employee;
-
+[Bindable] private var dep_dp:ArrayCollection;
 
 	
 	
@@ -23,6 +24,7 @@
 protected function on_creation_complete(event:FlexEvent):void
 {
 	item = new Employee();
+	dep_dp = Engine.engine.departments_ac;	
 	inp_FirstName.setFocus();
 }
 
@@ -57,7 +59,7 @@ protected function get_dept_index(id:int):int
 protected function inp_Dept_change(event:IndexChangeEvent):void
 {
 	if (item != null) {
-		item.DeptID = (Engine.engine.dep_dp.getItemAt(inp_Dept.selectedIndex) as Department).DeptID;
+		item.DeptID = (dep_dp.getItemAt(inp_Dept.selectedIndex) as Department).DeptID;
 	}
 }
 	
@@ -97,31 +99,32 @@ protected function dept_out(event:FocusEvent):void
 	
 ]]>
 </fx:Script>
-<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8" backgroundColor="#F0F0F0" borderStyle="solid" borderColor="#000000" verticalGap="8" >
+<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="16" paddingBottom="16" 
+		 backgroundColor="#F0F0F0" borderStyle="solid" borderColor="#000000" verticalGap="8" >
 	
 
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_FirstName" text="Имя:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
 	<s:TextInput id="inp_FirstName" text="{item.FirstName}" width="100%" maxChars="128" enabled="{item != null}" change="inp_change(event)" focusOut="foc_out(event)" />	
-	<s:Image id="del_FirstName" source="{Icons.ico_delete}" width="24" click="{inp_FirstName.text = ''; if (item != null) item.FirstName = ''}"  enabled="{item != null}" />
+	<s:Image id="del_FirstName" source="{Icons._delete}" width="24" click="{inp_FirstName.text = ''; if (item != null) item.FirstName = ''}"  enabled="{item != null}" />
 </s:HGroup>
 
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_LastName" text="Фамилия:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
 	<s:TextInput id="inp_LastName" text="{item.LastName}" width="100%" maxChars="128" enabled="{item != null}" change="inp_change(event)" focusOut="foc_out(event)"/>	
-	<s:Image id="del_LastName" source="{Icons.ico_delete}" width="24" click="{inp_LastName.text = ''; if (item != null) item.LastName = ''}" enabled="{item != null}" />
+	<s:Image id="del_LastName" source="{Icons._delete}" width="24" click="{inp_LastName.text = ''; if (item != null) item.LastName = ''}" enabled="{item != null}" />
 </s:HGroup>
 
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_Dept" text="Отделение:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}"/>
-	<s:DropDownList id="inp_Dept" dataProvider="{Engine.engine.dep_dp}" width="100%" labelField="DeptName" focusOut="dept_out(event)" selectedIndex="{item != null ? get_dept_index(item.DeptID) : -1}" change="inp_Dept_change(event)" enabled="{item != null}"/>
-	<s:Image id="del_Dept" source="{Icons.ico_delete}" width="24" click="{if (item!= null) item.DeptID = 0}" enabled="{item != null}"  />
+	<s:DropDownList id="inp_Dept" dataProvider="{dep_dp}" width="100%" labelField="DeptName" focusOut="dept_out(event)" selectedIndex="{item != null ? get_dept_index(item.DeptID) : -1}" change="inp_Dept_change(event)" enabled="{item != null}"/>
+	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{if (item!= null) item.DeptID = 0}" enabled="{item != null}"  />
 </s:HGroup>
 	
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_Position" text="Должность:" minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}" />
 	<s:TextInput id="inp_Position" text="{item.Position}" width="100%" maxChars="128" enabled="{item != null}" change="inp_change(event)" focusOut="foc_out(event)"/>	
-	<s:Image id="del_Position" source="{Icons.ico_delete}" width="24" click="{inp_Position.text = ''; if (item != null) item.Position = '' }" enabled="{item != null}" />
+	<s:Image id="del_Position" source="{Icons._delete}" width="24" click="{inp_Position.text = ''; if (item != null) item.Position = '' }" enabled="{item != null}" />
 </s:HGroup>
 	
 	

@@ -157,29 +157,37 @@ protected function inp_name_enterHandler(event:FlexEvent):void
 	callLater(foc_out);
 }
 	
-protected function inp_name_keyDownHandler(event:KeyboardEvent):void
+protected function inp_name_keyDownHandler(e:KeyboardEvent):void
 {
+	if (e.ctrlKey) {
+	switch (e.keyCode) {
+		case Keyboard.A:
+		case Keyboard.X:
+		case Keyboard.C:		
+		case Keyboard.V:
+			return;
+	}}
 
-	event.stopPropagation();		
+	e.stopPropagation();		
 
 	
-	switch (event.keyCode) {
+	switch (e.keyCode) {
 		case Keyboard.UP:
 		case Keyboard.DOWN:
 		case Keyboard.PAGE_UP:		
 		case Keyboard.PAGE_DOWN:		
-			event.preventDefault();			
-//			event.stopPropagation(); // ПРОВАЛИВАЕМСЯ ДАЛЬШЕ В "case"
+			e.preventDefault();			
+//			e.stopPropagation(); // ПРОВАЛИВАЕМСЯ ДАЛЬШЕ В "case"
 //			return;			
 		case Keyboard.HOME:
 		case Keyboard.END:
-//			event.stopPropagation();
+//			e.stopPropagation();
 			return;
 			
 		case Keyboard.ESCAPE:
 			revert();
 			focus_to_list();			
-//			event.stopPropagation();			
+//			e.stopPropagation();			
 			return;
 	}
 	
@@ -409,7 +417,7 @@ protected function get_name_text(data:Object):String
 />
 </mx:Canvas>
 
-<s:Image id="ico_del" source="{(f_selected &amp;&amp; !(changer &amp;&amp; changer.f_deleted))  ? Icons.ico_delete : null}" width="24" click="ico_del_clickHandler(event)" />
+<s:Image id="ico_del" source="{(f_selected &amp;&amp; !(changer &amp;&amp; changer.f_deleted))  ? Icons._delete : null}" width="24" click="ico_del_clickHandler(event)" />
 	
 <fx:Declarations>
 

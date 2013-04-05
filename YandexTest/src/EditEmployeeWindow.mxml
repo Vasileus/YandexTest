@@ -11,6 +11,7 @@
 	import mx.collections.ArrayCollection;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
+	import mx.events.ValidationResultEvent;
 	
 	import spark.components.DataGrid;
 
@@ -90,9 +91,25 @@ public function change_item(id:int, name:String, value:*):void
 {
 	Engine.engine.update_employee_field(id, name, value);
 }
+
+private function handleValid(e:ValidationResultEvent):void
+{
+	
+}
+
 	
 ]]>
 </fx:Script>
+<mx:HBox backgroundColor="#A0AAA0" width="100%" paddingTop="8" paddingBottom="8" paddingLeft="8" paddingRight="8" verticalAlign="middle" horizontalGap="10">
+	<s:Image source="@Embed(source='./assets/data_edit_48.png')" />
+	<s:VGroup gap="10" width="100%">
+		<s:Label text="{wnd.item.FirstName} {wnd.item.LastName}" fontWeight="bold" fontSize="18" width="100%" lineBreak="explicit"/>
+		<s:Label text="{wnd.item.Position}"  fontSize="14" color="#404040" width="100%" lineBreak="explicit"/>
+	</s:VGroup>
+</mx:HBox>
+
+	
+	
 <local:EmployeeWindow id="wnd" width="100%" height="100%" change_item="{change_item}" />	
 
 <s:HGroup width="100%" horizontalAlign="right" verticalAlign="middle">
@@ -107,5 +124,12 @@ public function change_item(id:int, name:String, value:*):void
 	
 <fx:Declarations>
 <fx:Boolean>{update(dg.selectedIndex)}</fx:Boolean>
+
+	<mx:Validator id="reqValid1" required="true" source="{wnd.inp_FirstName}" property="text" 
+				  valid="handleValid(event)" invalid="handleValid(event);" requiredFieldError="Поле [ИМЯ] не может быть пустым" />
+	
+	<mx:Validator id="reqValid2" required="true" source="{wnd.inp_LastName}" property="text" 
+				  valid="handleValid(event)" invalid="handleValid(event);" 	requiredFieldError="Поле [ФАМИЛИЯ] не может быть пустым"/>
+
 </fx:Declarations>
 </mx:VBox>

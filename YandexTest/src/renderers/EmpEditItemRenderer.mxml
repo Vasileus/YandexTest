@@ -144,19 +144,29 @@ protected function inp_enterHandler(event:FlexEvent):void
 	callLater(foc_out);
 }
 	
-protected function inp_keyDownHandler(event:KeyboardEvent):void
+protected function inp_keyDownHandler(e:KeyboardEvent):void
 {
-
-	event.stopPropagation();		
+	if (e.ctrlKey) {
+	switch (e.keyCode) {
+		case Keyboard.A:
+		case Keyboard.X:
+		case Keyboard.C:		
+		case Keyboard.V:
+			return;
+	}}
+	
+	
+	
+	e.stopPropagation();		
 
 	
-	switch (event.keyCode) {
+	switch (e.keyCode) {
 		case Keyboard.UP:
 		case Keyboard.DOWN:
 		case Keyboard.PAGE_UP:		
 		case Keyboard.PAGE_DOWN:		
 		case Keyboard.TAB:
-			event.preventDefault();			
+			e.preventDefault();			
 //			event.stopPropagation(); // ПРОВАЛИВАЕМСЯ ДАЛЬШЕ В "case"
 //			return;			
 		case Keyboard.HOME:
@@ -202,10 +212,10 @@ protected function inp_focusOutHandler(event:FocusEvent):void
 	
 	set_value(inp.text = text);
 	
-	change_item();
-	
-	changer = null;
-
+	if (changer != null) {
+		change_item();
+		changer = null;
+	}
 	
 	set_text_input_color();
 

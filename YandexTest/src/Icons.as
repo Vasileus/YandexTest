@@ -8,36 +8,60 @@ public function Icons()
 
 
 [Embed(source="./assets/con-yes.png")]
-[Bindable] public static var ico_con_yes:Class;
+[Bindable] public static var con_yes:Class;
 
 [Embed(source="./assets/con-no.png")]
-[Bindable] public static var ico_con_no:Class;
+[Bindable] public static var con_no:Class;
  
 [Embed(source="./assets/con-try.png")]
-[Bindable] public static var ico_con_try:Class;
+[Bindable] public static var con_try:Class;
 
 [Embed(source="./assets/database.png")]
-[Bindable] public static var ico_database:Class;
+[Bindable] public static var database:Class;
 
 [Embed(source="./assets/help.png")]
-[Bindable] public static var ico_about:Class;
+[Bindable] public static var about:Class;
 
 [Embed(source="./assets/add.png")]
-[Bindable] public static var ico_add:Class;
+[Bindable] public static var add:Class;
 
 [Embed(source="./assets/delete2.png")]
-[Bindable] public static var ico_delete:Class;
+[Bindable] public static var _delete:Class;
+
+[Embed(source="./assets/delete.png")]
+[Bindable] public static var remove:Class;
+
 
 [Embed(source="./assets/check.png")]
-[Bindable] public static var ico_check:Class;
+[Bindable] public static var check:Class;
 
 [Embed(source="./assets/potion_green.png")]
-[Bindable] public static var ico_potion_green:Class;
+[Bindable] public static var potion_green:Class;
 
 [Embed(source="./assets/potion_red.png")]
-[Bindable] public static var ico_potion_red:Class;
+[Bindable] public static var potion_red:Class;
 
 [Embed(source="./assets/box.png")]
-[Bindable] public static var ico_box:Class;
+[Bindable] public static var box:Class;
+
+[Embed(source="./assets/notebook.png")]
+[Bindable] public static var notebook:Class;
+
+[Embed(source="./assets/data_edit.png")]
+[Bindable] public static var data_edit:Class;
+
+[Embed(source="./assets/data.png")]
+[Bindable] public static var data:Class;
+
+[Embed(source="./assets/data_error.png")]
+[Bindable] public static var data_error:Class;
+
+[Embed(source="./assets/data_view.png")]
+[Bindable] public static var data_view:Class;
+
+
+[Embed(source="./assets/data_ok.png")]
+[Bindable] public static var data_ok:Class;
+
 
 }}

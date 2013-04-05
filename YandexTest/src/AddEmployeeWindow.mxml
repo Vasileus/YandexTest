@@ -6,23 +6,22 @@
 >
 <fx:Script>
 <![CDATA[
-	import mx.events.CloseEvent;
-	import mx.events.FlexEvent;
-	import mx.events.ValidationResultEvent;
-	import mx.utils.StringUtil;
-	import mx.validators.EmailValidator;
+import mx.events.CloseEvent;
+import mx.events.FlexEvent;
+import mx.events.ValidationResultEvent;
+import mx.utils.StringUtil;
+import mx.validators.EmailValidator;
 
 
 
-
-	
-	
+[Bindable] public var engine:Engine = Engine.engine;
 	
 
 protected function on_creation_complete(event:FlexEvent):void
 {
 	wnd.item = new Employee(0, 0, "", "", "");
 	wnd.inp_FirstName.setFocus();
+	lbl_name.text = "Новый сотрудник"
 }
 
 
@@ -36,7 +35,7 @@ override protected function updateDisplayList(unscaledWidth:Number, unscaledHeig
 protected function on_btn_ok_click(event:MouseEvent):void
 {
 	if (wnd.item.FirstName == "" || wnd.item.LastName == '') return;	
-	Engine.engine.add_employee(wnd.item);
+	engine.add_employee(wnd.item);
 	
 	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))	
 }
@@ -59,11 +58,21 @@ private function handleValid(e:ValidationResultEvent):void
 
 ]]>
 </fx:Script>
-<local:EmployeeWindow id="wnd" width="100%" height="100%" />	
+<mx:HBox backgroundColor="#A0AAA0" width="100%" paddingTop="8" paddingBottom="8" paddingLeft="8" paddingRight="8" verticalAlign="middle" horizontalGap="10">
+	<s:Image source="@Embed(source='./assets/data_add_48.png')" />
+	<s:VGroup gap="10" width="100%">
+		<s:Label id="lbl_name" text="{wnd.item.FirstName} {wnd.item.LastName}" fontWeight="bold" fontSize="18" width="100%" lineBreak="explicit"/>
+		<s:Label text="{wnd.item.Position}"  fontSize="14" color="#404040" width="100%" lineBreak="explicit"/>
+	</s:VGroup>
+</mx:HBox>
+
+
+	
+<local:EmployeeWindow id="wnd" width="100%" height="100%" enabled="{engine.f_connected}" />	
 
 <s:HGroup width="100%" horizontalAlign="right">
 	<s:Button id="btn_ok" label="Добавить"  click="on_btn_ok_click(event)"
-			  enabled="{wnd.item.FirstName != '' &amp;&amp; wnd.item.LastName != ''}"		  
+			  enabled="{engine.f_connected &amp;&amp; wnd.item.FirstName != '' &amp;&amp; wnd.item.LastName != ''}"		  
 	/>
 	<s:Button label="Отмена" click="{dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))}" />
 </s:HGroup>

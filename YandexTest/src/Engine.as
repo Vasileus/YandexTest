@@ -18,17 +18,26 @@ public class Engine
 public static var _engine:Engine = null;
 public static function get engine():Engine { return _engine != null ? _engine : (_engine = new Engine())};
 
+[Bindable] public var f_data_view:Boolean = false;
+[Bindable] public var f_data_error:Boolean = false;
 [Bindable] public var f_connected:Boolean = false;	
 [Bindable] public var f_try_connect:Boolean = false;
 
 private var _file_name:String = "";
 [Bindable] public  var _disp_name:String = "";
 
+
+public static function call_later(method:Function, args:Array = null):void
+{
+	AppWindow.app.callLater(method, args);
+}
+	
 public function Engine()
 {
 }
 
-public var sqlConnection:SQLConnection;
+public    var sql_connection:SQLConnection;
+protected var sql_statement:SQLStatement;
 
 public function open_close_database_connection():void
 {
@@ -42,18 +51,40 @@ public function open_close_database_connection():void
 
 public function close_database_connection():void
 {
-	if (sqlConnection == null) return;
-	sqlConnection.removeEventListener(SQLEvent.OPEN, on_database_open);
-	sqlConnection.removeEventListener(SQLErrorEvent.ERROR, on_database_open_error);
-	sqlConnection.close();
+	if (sql_statement != null && sql_statement.executing) {
+//		return; // ADOBEE BUG
+	}
 	
-	sqlConnection = null;
+	if (sql_connection == null) return;
+	sql_connection.removeEventListener(SQLEvent.OPEN, on_database_open);
+	sql_connection.removeEventListener(SQLErrorEvent.ERROR, on_database_open_error);
+	if (sql_statement != null) {
+		sql_statement.removeEventListener(SQLEvent.RESULT, _internal_result);
+		sql_statement.removeEventListener(SQLErrorEvent.ERROR, _internal_error);
+
+		
+		if (sql_statement.executing) {
+			sql_statement.cancel();
+		}
+		sql_statement = null;
+	}
+	queue.splice(0);
+	current_query = null;
+	
+	sql_connection.close();
+	sql_connection = null;
 
 	f_try_connect = false;	
 	f_connected = false;
+	f_data_error = false;
+	f_data_view = false;
+	
+	f_executing_sql_statement = false;
+	f_executing_sql_queue = false;
+	
 	
 	emp_dp.source = [];
-	dep_dp.source = [];
+//	dep_dp.source = [];
 }
 	
 	
@@ -74,9 +105,9 @@ public function open_database_connection(file_name:String = "", disp_name:String
 	f_try_connect = true;	
 	
 	// create new sqlConnection
-	sqlConnection = new SQLConnection();
-	sqlConnection.addEventListener(SQLEvent.OPEN, on_database_open);
-	sqlConnection.addEventListener(SQLErrorEvent.ERROR, on_database_open_error);
+	sql_connection = new SQLConnection();
+	sql_connection.addEventListener(SQLEvent.OPEN, on_database_open);
+	sql_connection.addEventListener(SQLErrorEvent.ERROR, on_database_open_error);
 		 
 	// get currently dir
     // var folder:File = File.applicationStorageDirectory;
@@ -85,7 +116,7 @@ public function open_database_connection(file_name:String = "", disp_name:String
 	var file:File = File.documentsDirectory.resolvePath(file_name);
 		 
 	// open exist database
-	sqlConnection.openAsync(file, SQLMode.UPDATE);
+	sql_connection.openAsync(file, SQLMode.UPDATE);
 }
 
 protected function on_database_open(event:SQLEvent):void
@@ -93,8 +124,16 @@ protected function on_database_open(event:SQLEvent):void
 	PP.set_str("default_open_db_file_name", _file_name);
 	PP.set_str("default_open_db_disp_name", _disp_name);
 	f_try_connect = false;
-	f_connected = sqlConnection.connected;
-	do_database_open();
+	f_connected = sql_connection.connected;
+
+	var ss:SQLStatement = sql_statement = new SQLStatement();
+	ss.sqlConnection = sql_connection;
+	
+	ss.addEventListener(SQLEvent.RESULT, _internal_result);
+	ss.addEventListener(SQLErrorEvent.ERROR, _internal_error);
+	
+	
+	call_later(do_database_open);
 }
 
 protected function on_database_open_error(event:SQLErrorEvent):void
@@ -111,6 +150,7 @@ protected function do_database_open():void
 {
 	query_departments();
 	query_emploeyes();
+	query_departments_emp_count();
 }
 
 
@@ -129,6 +169,28 @@ protected function do_database_open():void
 
 public var employees:Array = [];
 [Bindable] public var emp_dp:ArrayCollection  = new ArrayCollection();
+
+public function query_departments_emp_count():void
+{
+	f_data_view = true;
+	var sql:String = "SELECT DeptID, count(*) AS CNT FROM  Employees  GROUP BY  DeptID";
+	query_execute(sql, null, query_departments_emp_count_result, query_departments_emp_count_error);
+}
+
+protected function query_departments_emp_count_result(e:SQLEvent):void
+{
+	var ss:SQLStatement = e.target as SQLStatement;
+
+	f_data_view = false;	
+	f_data_error = true;
+}
+
+protected function query_departments_emp_count_error(e:SQLErrorEvent):void
+{
+	f_data_view = false;
+	f_data_error = true;
+}
+
 
 public function update_employee_field(id:int, name:String, value:*, done:Function = null):void
 {
@@ -150,41 +212,51 @@ public function query_emploeyes_page(dir:int):void
 	query_emploeyes();
 }
 
+
+protected function filter_string_add_cond_text_field(s:String, fn:String):String
+{
+	var v:String = filter[fn];
+	
+	if (v != "") {
+		if (s != "") s += " AND ";
+		
+		//v = escape(v);
+		// Если поиск начинается с первой буквы нижнего регистра, то добавляем дополнительный поиск с вернего регистра
+		if (f_filter_like) {
+			var ch:String = v.charAt(0);
+			
+			if (ch.toLocaleLowerCase() == ch) { 
+				var v1:String = ch.toLocaleUpperCase() + v.substring(1);
+				var v2:String = ch.toLocaleLowerCase() + v.substring(1);			
+			
+				s += "(" + fn + " LIKE " + "'" + escape(v1) + "%'" + " OR " + fn + " LIKE " + "'" + escape(v2) + "%'" + ")" ;
+			}
+			else {
+				s += fn + " LIKE " + "'" + escape(v) + "%'";				
+			}
+			
+		}
+		else
+			s += fn + "=" + "'" + escape(v) + "'";
+	}
+	
+	return s;	
+}
+
 public function filter_string():String
 {
 	if (!f_use_filter) return " "; 
 	var s:String = "";
 
 	if (filter.DeptID > 0) {
-		s += s == "" ? "" : " AND ";
+		if (s != "") s += " AND ";
 		s += "DeptID=" + filter.DeptID;
 	}
 
-	if (filter.FirstName != "") {
-		s += s == "" ? "" : " AND ";
-		
-		if (f_filter_like)
-			s += "FirstName LIKE " + "'" + escape(filter.FirstName) + "%'";		
-		else
-			s += "FirstName=" + "'" + escape(filter.FirstName) + "'";
-	}
-	
-	if (filter.LastName != "") {
-		s += s == "" ? "" : " AND ";
-		if (f_filter_like)
-			s += "LastName LIKE " + "'" + escape(filter.LastName) + "%'";		
-		else
-			s += "LastName=" + "'" + escape(filter.LastName) + "'";
-	}
+	s = filter_string_add_cond_text_field(s, "FirstName");
+	s = filter_string_add_cond_text_field(s, "LastName");	
+	s = filter_string_add_cond_text_field(s, "Position");	
 
-	if (filter.Position != "") {
-		s += s == "" ? "" : " AND ";
-		if (f_filter_like)
-			s += "Position LIKE " + "'" + escape(filter.Position) + "%'";		
-		else
-			s += "Position=" + "'" + escape(filter.Position) + "'";
-	}
-	
 	s = StringUtil.trim(s);
 	if ( s != "") {
 		s = " WHERE " + s;
@@ -277,7 +349,7 @@ public function add_employee(e:Employee):void
 // DEPARTMENTS
 public var departments:Array = [];
 public var departments_index:Object = {};
-[Bindable] public var dep_dp:ArrayCollection = new ArrayCollection();
+[Bindable] public var departments_ac:ArrayCollection = new ArrayCollection();
 
 protected var query_departments_done:Function = null;
 protected var apply_departments_changes_count:int = 0;
@@ -308,10 +380,10 @@ protected function query_departments_result(e:SQLEvent):void
 	}
 	
 	
-	departments.push(new Department(-1, ""));
+//	departments.push(new Department(-1, ""));
 	
 	departments_query_count++;
-	dep_dp.source = departments;
+	departments_ac.source = departments;
 	if (query_departments_done != null) query_departments_done();
 	return;
 }
@@ -321,7 +393,7 @@ protected function query_departments_error(e:SQLErrorEvent):void
 	if (query_departments_done != null) query_departments_done();	
 }
 
-public function apply_departments_changes(changes:ObjectEx, done:Function):void
+public function apply_departments_changes(departments:Array, changes:ObjectEx, done:Function):void
 {
 	apply_departments_changes_count = 0;
 	apply_departments_changes_done = done;
@@ -332,7 +404,7 @@ public function apply_departments_changes(changes:ObjectEx, done:Function):void
 		
 		if (ch.f_deleted && id >= 0) {
 			apply_departments_changes_count++;
-			query_execute("DELETE FROM Departments WHERE DeptID='" + id +"'", null, 
+			query_execute("DELETE FROM Departments WHERE DeptID=" + id + "", null, 
 				apply_departments_changes_result, apply_departments_changes_error);			
 			
 			
@@ -341,7 +413,7 @@ public function apply_departments_changes(changes:ObjectEx, done:Function):void
 			if (id >= 0) {
 				var name:String = (departments[departments_index[id]] as  Department).DeptName;
 				apply_departments_changes_count++;
-				query_execute("UPDATE Departments SET DeptName='" + escape(name) +"' WHERE DeptID='" + id + "'", null, 
+				query_execute("UPDATE Departments SET DeptName='" + escape(name) +"' WHERE DeptID=" + id + "", null, 
 					apply_departments_changes_result, apply_departments_changes_error);			
 			}
 		}
@@ -396,35 +468,130 @@ protected function apply_departments_changes_error(e:SQLErrorEvent):void
 
 
 // ----------------------------------------------------------------------------------------------------
+[Bindable] public var f_executing_sql_statement:Boolean = false;
+[Bindable] public var f_executing_sql_queue:Boolean = false;
 
-protected function query_execute(sql:String, params:Object, result:Function, error:Function):Boolean
+[Bindable] public var sql_log:String = "";
+
+protected function log(s:String, cr:Boolean = true):void
 {
-	if (sqlConnection == null) return false;
+	var limit:int = 4 * 1024;
 	
-	var ss:SQLStatement = new SQLStatement();
-	ss.sqlConnection = sqlConnection;
-	ss.text = sql;
-	ss.addEventListener(SQLEvent.RESULT, result);
-	ss.addEventListener(SQLErrorEvent.ERROR, error);
+	if (sql_log.length > limit) {
+		var i:int = sql_log.indexOf("\n", sql_log.length - limit); 
+		if (i >= 0) sql_log = sql_log.substring(i + 1);
+	}
+	
+	
+	sql_log += s;
+	if (cr) {
+		sql_log += "\n";
+	}
+}
+
+protected var queue:Array = []; 
+
+
+protected function query_execute(sql:String, params:Object, result:Function, error:Function):void
+{
+	f_executing_sql_queue = true;
+	var o:Object = { sql:sql, params:params, result:result, error:error }	
+	queue.push(o);
+	if (queue.length == 1) {
+		call_later(do_queue);
+	}
+}
+
+protected function do_queue():void
+{
+	if (f_executing_sql_statement || sql_statement == null || sql_statement.executing) return;
+	
+	if (queue.length == 0) {
+		f_executing_sql_queue = false;
+		return;
+	}
+	
+	var o:Object = current_query = queue.shift();
+	do_query_execute();//o.sql, o.params, o.result, o.error);
+}
+
+protected var current_query:Object;
+
+protected function do_query_execute():Boolean//sql:String, params:Object, result:Function, error:Function):Boolean
+{
+	if (sql_connection == null) {
+		queue.splice(0);
+		return false;
+	}
+
+	log("QUERY: " + current_query.sql );
+	
+	f_executing_sql_statement = true;	
+	
+	var ss:SQLStatement = sql_statement;// = new SQLStatement();
+//	ss.sqlConnection = sql_connection;
+	ss.text = current_query.sql;
+
+//	ss.addEventListener(SQLEvent.RESULT, _internal_result);
+//	ss.addEventListener(SQLErrorEvent.ERROR, _internal_error);
+	
+	
+	
+//	ss.addEventListener(SQLEvent.RESULT, result);
+//	ss.addEventListener(SQLErrorEvent.ERROR, error);
+
+
+
 	ss.execute();	
 	return true;
+}
+
+protected function _internal_result(e:SQLEvent):void
+{
+	f_executing_sql_statement = false;
+	var ss:SQLStatement = e.target as SQLStatement; 
+	current_query.result(e);
+//	ss.removeEventListener(SQLEvent.RESULT, _internal_result);
+//	ss.removeEventListener(SQLErrorEvent.ERROR, _internal_error);
+//	sql_statement = null;
+	current_query = null;
+	call_later(do_queue);
+	
+}
+
+protected function _internal_error(e:SQLErrorEvent):void
+{
+	f_executing_sql_statement = false;
+	var ss:SQLStatement = e.target as SQLStatement; 
+	current_query.error(e);
+
+	log("ERROR: " + e.error.details);
+	
+//	ss.removeEventListener(SQLEvent.RESULT, _internal_result);
+//	ss.removeEventListener(SQLErrorEvent.ERROR, _internal_error);
+//	sql_statement = null;
+	current_query = null;
+	call_later(do_queue);
 }
 
 
 
 protected function common_result(e:SQLEvent):void
 {
-	var a:int = 0;
+	var ss:SQLStatement = e.target as SQLStatement;
 }
 
 protected function common_error(e:SQLErrorEvent):void
 {
-	var a:int = 0;
+	var ss:SQLStatement = e.target as SQLStatement;
 }
 
-protected function escape(s:String):String
+public static function escape(s:String):String
 {
 	return s.replace(/'/g, "''");
 }
+//SELECT * FROM Employees LEFT JOIN Departments ON Employees.DeptID != Departments.DeptID
+//SELECT COUNT(*) FROM Employees LEFT JOIN Departments ON Employees.DeptID != Departments.DeptID
+//SELECT * FROM Employees LEFT OUTER JOIN Departments ON Employees.DeptID = Departments.DeptID WHERE Employees.DeptID=null
 
 }}

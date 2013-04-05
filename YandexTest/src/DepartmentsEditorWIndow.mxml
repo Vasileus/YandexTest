@@ -7,26 +7,40 @@
 >
 <fx:Script>
 <![CDATA[
-	import controls.ObjectEx;
-	
-	import mx.collections.ArrayCollection;
-	import mx.core.UIComponent;
-	import mx.events.CloseEvent;
-	import mx.events.FlexEvent;
-	import mx.events.ListEvent;
-	import mx.utils.ObjectProxy;
-	
-	import renderers.DeptEditItemRenderer;
-	
-[Bindable] private var dp:ArrayCollection;	
+import controls.ObjectEx;
 
-[Bindable] public var tst:String = "***";	
+import mx.collections.ArrayCollection;
+import mx.core.UIComponent;
+import mx.events.CloseEvent;
+import mx.events.FlexEvent;
+import mx.events.ListEvent;
+import mx.utils.ObjectProxy;
+
+import renderers.DeptEditItemRenderer;
+	
+[Bindable] private var dp:ArrayCollection;;	
+[Bindable] public var engine:Engine = Engine.engine;	
 	
 protected function on_creation_complete(event:FlexEvent):void
 {
-	dp = Engine.engine.dep_dp;
+//	dp = Engine.engine.departments_ac;
+	reset_dp();
 }
 
+protected function reset_dp():void
+{
+	dp = new ArrayCollection();
+	clone_array_collection(engine.departments_ac, dp);
+	dp.addItem(new Department(-1, ""));	
+}
+	
+public static function clone_array_collection(src:ArrayCollection, dst:ArrayCollection):void	
+{
+	for (var i:int = 0; i < src.length; i++) {	
+		dst.addItem(src[i]);
+	}
+}
+	
 private var current_index:int = -1;
 	
 
@@ -36,7 +50,7 @@ private var current_index:int = -1;
 //}
 	
 	
-protected function list_changeHandler(e:ListEvent = null):void
+protected function on_list_change(e:ListEvent = null):void
 {
 	var index:int = list.selectedIndex;
 	
@@ -73,18 +87,14 @@ protected function list_keyDownHandler(event:KeyboardEvent):void
 			item.inp_name.setFocus();
 		}
 	}
-}
+}                                        
 
-protected function btn_discard_clickHandler(event:MouseEvent):void
-{
-	discard_changes(true);
-}
 
-protected function discard_changes(f_restore:Boolean):void
+protected function cmd_discard(f_restore:Boolean = true):void
 {
 	var pi:int = list.selectedIndex;
 	list.selectedIndex = -1;
-	list_changeHandler();	
+	on_list_change();	
 	
 	var engine:Engine = Engine.engine;
 	
@@ -138,7 +148,7 @@ public function delete_item(id:int):void
 	
 	var pi:int = list.selectedIndex;
 	list.selectedIndex = -1;
-	list_changeHandler();	
+	on_list_change();	
 	
 	for (var i:int = dp.length - 1; i >= 0; i--) {
 		var dept:Department = dp.getItemAt(i) as Department;		
@@ -161,7 +171,7 @@ public function set_selected_index(i:int):void
 {
 	if (i >= dp.length) i = dp.length - 1;
 	list.selectedIndex = i;
-	list_changeHandler();
+	on_list_change();
 	list.scrollToIndex(i);
 	list.setFocus();
 }
@@ -186,10 +196,10 @@ public function add_new_item():void
 	
 	
 	
-protected function btn_apply_clickHandler(event:MouseEvent):void
+protected function cmd_apply():void
 {
 	f_apply = true;
-	Engine.engine.apply_departments_changes(changer, apply_done);
+	engine.apply_departments_changes(dp.source, changer, apply_done);
 	
 }
 	
@@ -198,19 +208,19 @@ protected function apply_done():void
 	f_apply = false;
 
 //	changer = new ObjectEx();	
-	discard_changes(false);
+	cmd_discard(false);
 //	dp = null;
 	
 //	callLater(Engine.engine.query_departments, [query_departments_done]);	
-	Engine.engine.query_departments(query_departments_done);	
+	engine.query_departments(query_departments_done);	
 }
 	
 protected function query_departments_done():void
 {
-//	dp = Engine.engine.dep_dp;	
+	reset_dp();	
 }
 
-protected function btn_close_clickHandler(event:MouseEvent):void
+protected function on_btn_close_click(event:MouseEvent):void
 {
 	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true));
 	
@@ -222,15 +232,15 @@ protected function btn_close_clickHandler(event:MouseEvent):void
 <mx:HBox width="100%" height="100%">
 	
 <mx:VBox width="100%" height="100%">
-	<controls:ListEx id="list" width="100%" height="100%" dataProvider="{dp}" labelField="DeptName" itemRenderer="renderers.DeptEditItemRenderer" change="list_changeHandler(event)" user_data="{user_data}" keyDown="list_keyDownHandler(event)"/>	
+	<controls:ListEx id="list" width="100%" height="100%" dataProvider="{dp}" labelField="DeptName" itemRenderer="renderers.DeptEditItemRenderer" change="on_list_change(event)" user_data="{user_data}" keyDown="list_keyDownHandler(event)"/>	
 </mx:VBox>
 	
 </mx:HBox>
 
 <mx:HBox width="100%" horizontalAlign="right">
-	<s:Button id="btn_apply" label="Применить" enabled="{!f_apply &amp;&amp; changer._ != 0 }" click="btn_apply_clickHandler(event)"  />	
-	<s:Button id="btn_discard" label="Сбросить" enabled="{!f_apply &amp;&amp; changer._ != 0}" click="btn_discard_clickHandler(event)" />
-	<s:Button id="btn_close" label="Закрыть" enabled="{!f_apply &amp;&amp; changer._  == 0}" click="btn_close_clickHandler(event)" />
+	<s:Button id="btn_apply" label="Применить" enabled="{!f_apply &amp;&amp; changer._ != 0 }" click="{cmd_apply()}"  />	
+	<s:Button id="btn_discard" label="Сбросить" enabled="{!f_apply &amp;&amp; changer._ != 0}" click="{cmd_discard()}" />
+	<s:Button id="btn_close" label="Закрыть" enabled="{!f_apply &amp;&amp; changer._  == 0}" click="on_btn_close_click(event)" />
 </mx:HBox>	
 	
 	

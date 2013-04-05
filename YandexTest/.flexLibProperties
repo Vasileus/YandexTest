@@ -15,8 +15,10 @@
     <classEntry path="AboutWindow"/>
     <classEntry path="EmployeeWindow"/>
     <classEntry path="Windows"/>
-    <classEntry path="FilterWidow"/>
+    <classEntry path="FilterWindow"/>
     <classEntry path="ConfirmDeleteWindow"/>
+    <classEntry path="SQLogWindow"/>
+    <classEntry path="Utils"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

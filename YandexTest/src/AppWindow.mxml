@@ -142,7 +142,7 @@ private function dg_set_index(i:int):void
 		<s:Button label="&lt;&lt; Пред. Страница" click="{Engine.engine.query_emploeyes_page(-1)}" />
 		<s:Button label="&gt;&gt; След. Страница" click="{Engine.engine.query_emploeyes_page( 1)}"/>
 		<s:Spacer width="100%" />
-		<s:Label text="Кол-во записей : {Engine.engine.emp_dp.length} / 10000000" paddingTop="4"/>		
+		<s:Label text="Кол-во записей : {Engine.engine.emp_dp.length} / {Engine.engine.employee_num_records}" paddingTop="4"/>		
 		<s:Button label="Обновить" click="{Engine.engine.query_emploeyes()}" />
 	</mx:HBox>
 		

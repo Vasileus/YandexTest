@@ -123,6 +123,7 @@ protected function do_database_open():void
 
 public var page_limit:int = 100;
 public var page_start:int = 0;
+[Bindable] public var employee_num_records:int = 0;
 
 public var employees:Array = [];
 [Bindable] public var emp_dp:ArrayCollection  = new ArrayCollection();
@@ -194,10 +195,27 @@ public function query_emploeyes(done:Function = null):void
 {
 	emp_dp.source = [];
 	employees.splice(0);
+	employee_num_records = 0;
+	
+	
+	var sql2:String = "SELECT count(*) AS cnt FROM Employees" + filter_string();
+	query_execute(sql2, null, query_emploeyes_counter_result, common_error);	
 	
 	var sql:String = "SELECT * FROM Employees" + filter_string() + "ORDER BY EmplID ASC" + 
 		" LIMIT " + page_start + "," + page_limit + " ";	
 	query_execute(sql, null, query_emploeyes_result, common_error);
+}
+
+protected function query_emploeyes_counter_result(e:SQLEvent):void
+{
+	var ss:SQLStatement = e.currentTarget as SQLStatement;
+	var result:SQLResult = ss.getResult();
+	var a:Array = result.data;	
+	
+	if (a != null && a.length > 0) {
+		employee_num_records = a[0].cnt;
+	}
+	
 }
 
 protected function query_emploeyes_result(e:SQLEvent):void

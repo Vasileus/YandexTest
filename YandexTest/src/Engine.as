@@ -121,9 +121,11 @@ public var page_start:int = 0;
 public var employees:Array = [];
 [Bindable] public var emp_dp:ArrayCollection  = new ArrayCollection();
 
-public function update_employee_field(id:int, name:String, value:String, done:Function = null):void
+public function update_employee_field(id:int, name:String, value:*, done:Function = null):void
 {
-	var sql:String = "UPDATE Employees SET " + name + "='" + escape(value) +"' WHERE EmplID=" + id + "";
+	var v:String = (value is String) ? ("'" + escape(value) + "'") : value;
+	
+	var sql:String = "UPDATE Employees SET " + name + "=" + v +" WHERE EmplID=" + id + "";
 	
 	query_execute(sql, null, common_result, common_error);	
 }
@@ -169,9 +171,19 @@ protected function query_emploeyes_result(e:SQLEvent):void
 
 public function delete_employee(id:int):void
 {
-	query_execute("DELETE FROM Employees WHERE EmplID=" + id +  "", null, common_result, common_error);
+	var sql:String = "DELETE FROM Employees WHERE EmplID=" + id +  "";
+	query_execute(sql, null, common_result, common_error);
 }
 
+public function add_employee(e:Employee):void
+{
+	var sql:String = "INSERT INTO Employees (DeptID,FirstName,LastName,Position) VALUES" +
+		"(" + e.DeptID + ",'" + escape(e.FirstName) + "','" + escape(e.LastName) + "','" + escape(e.Position) + "')";
+		
+	query_execute(sql, null, common_result, common_error);
+}
+	
+	
 // ----------------------------------------------------------------------------------------------------
 // DEPARTMENTS
 public var departments:Array = [];

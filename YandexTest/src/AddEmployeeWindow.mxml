@@ -8,6 +8,9 @@
 <![CDATA[
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
+	import mx.events.ValidationResultEvent;
+	import mx.utils.StringUtil;
+	import mx.validators.EmailValidator;
 
 
 
@@ -18,7 +21,7 @@
 
 protected function on_creation_complete(event:FlexEvent):void
 {
-	wnd.item = new Employee();
+	wnd.item = new Employee(0, 0, "", "", "");
 	wnd.inp_FirstName.setFocus();
 }
 
@@ -29,26 +32,50 @@ override protected function updateDisplayList(unscaledWidth:Number, unscaledHeig
 	super.updateDisplayList(unscaledWidth, unscaledHeight);
 
 }
-
-
-
-
-
-
-
-
 	
+protected function on_btn_ok_click(event:MouseEvent):void
+{
+	if (wnd.item.FirstName == "" || wnd.item.LastName == '') return;	
+	Engine.engine.add_employee(wnd.item);
+	
+	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))	
+}
+
+private function handleValid(e:ValidationResultEvent):void
+{
+/*
+	
+	
+	if (e.type == ValidationResultEvent.VALID) {
+		// Enable Submit button.
+		btn_ok.enabled = true;
+	} else {
+		btn_ok.enabled = false;
+	}
+*/
+	
+}
+	
+
 ]]>
 </fx:Script>
 <local:EmployeeWindow id="wnd" width="100%" height="100%" />	
 
 <s:HGroup width="100%" horizontalAlign="right">
-	<s:Button label="Добавить" click="{dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))}" />
+	<s:Button id="btn_ok" label="Добавить"  click="on_btn_ok_click(event)"
+			  enabled="{wnd.item.FirstName != '' &amp;&amp; wnd.item.LastName != ''}"		  
+	/>
 	<s:Button label="Отмена" click="{dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))}" />
 </s:HGroup>
 	
 	
 <fx:Declarations>
+<mx:Validator id="reqValid1" required="true" source="{wnd.inp_FirstName}" property="text" 
+			  valid="handleValid(event)" invalid="handleValid(event);" requiredFieldError="Поле [ИМЯ] не может быть пустым" />
+
+<mx:Validator id="reqValid2" required="true" source="{wnd.inp_LastName}" property="text" 
+			  valid="handleValid(event)" invalid="handleValid(event);" 	requiredFieldError="Поле [ФАМИЛИЯ] не может быть пустым"/>
+
 
 </fx:Declarations>
 </mx:VBox>

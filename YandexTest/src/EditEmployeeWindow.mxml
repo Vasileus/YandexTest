@@ -85,11 +85,15 @@ protected function update(p:* = null):Boolean
 	wnd.item = dg.selectedItem as Employee;	
 	return true;
 }
-	
+
+public function change_item(id:int, name:String, value:*):void
+{
+	Engine.engine.update_employee_field(id, name, value);
+}
 	
 ]]>
 </fx:Script>
-<local:EmployeeWindow id="wnd" width="100%" height="100%" />	
+<local:EmployeeWindow id="wnd" width="100%" height="100%" change_item="{change_item}" />	
 
 <s:HGroup width="100%" horizontalAlign="right" verticalAlign="middle">
 	<s:Label text="ID: {wnd.item.EmplID}" />

@@ -121,9 +121,11 @@ protected function do_database_open():void
 [Bindable] public var filter:Employee = new Employee(0, 0, "", "", "");
 
 
-public var page_limit:int = 100;
-public var page_start:int = 0;
+[Bindable] public var page_limit:int = 100;
+[Bindable] public var page_start:int = 0;
 [Bindable] public var employee_num_records:int = 0;
+[Bindable] public var page_total:int = 0;
+
 
 public var employees:Array = [];
 [Bindable] public var emp_dp:ArrayCollection  = new ArrayCollection();
@@ -141,7 +143,8 @@ public function query_emploeyes_page(dir:int):void
 {
 	if (dir == 0) page_start = 0;
 	else {
-		page_start += page_limit * dir;
+		page_start += dir;
+		if (page_start >= page_total) page_start = page_total - 1;
 		if (page_start < 0) page_start = 0;
 	}
 	query_emploeyes();
@@ -197,12 +200,16 @@ public function query_emploeyes(done:Function = null):void
 	employees.splice(0);
 	employee_num_records = 0;
 	
+	if (page_start == 0) {
+		page_total = 0;
+	}
+	
 	
 	var sql2:String = "SELECT count(*) AS cnt FROM Employees" + filter_string();
 	query_execute(sql2, null, query_emploeyes_counter_result, common_error);	
 	
 	var sql:String = "SELECT * FROM Employees" + filter_string() + "ORDER BY EmplID ASC" + 
-		" LIMIT " + page_start + "," + page_limit + " ";	
+		" LIMIT " + page_start * page_limit + "," + page_limit + " ";	
 	query_execute(sql, null, query_emploeyes_result, common_error);
 }
 
@@ -214,6 +221,7 @@ protected function query_emploeyes_counter_result(e:SQLEvent):void
 	
 	if (a != null && a.length > 0) {
 		employee_num_records = a[0].cnt;
+		page_total = Math.ceil(employee_num_records / page_limit);
 	}
 	
 }

@@ -6,7 +6,8 @@
 	
 <fx:Script>
 <![CDATA[
-import mx.events.FlexEvent;
+	import mx.core.Window;
+	import mx.events.FlexEvent;
 
 protected function on_creation_complete(event:FlexEvent):void
 {
@@ -35,8 +36,7 @@ protected function on_reset(event:MouseEvent):void
 	
 protected function btn_del_employees_clickHandler(event:MouseEvent):void
 {
-	Engine.engine.delete_employees_by_flter();
-	on_refresh();
+	Windows.windows.confirm_delete();
 }
 
 //enabled="{dg.selectedIndex >= 0}"	
@@ -48,7 +48,7 @@ protected function on_replace_to_department(event:MouseEvent):void
 		id = (inp_Dept.selectedItem as Department).DeptID
 	}
 	
-	Engine.engine.replace_employees_to_department_by_flter(id);
+	Engine.engine.replace_employees_to_department_by_fllter(id);
 	on_refresh();	
 }
 	
@@ -57,6 +57,7 @@ protected function on_replace_to_department(event:MouseEvent):void
 	
 	
 <mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
+	<s:Image source="{Engine.engine.f_use_filter ? Icons.ico_potion_green : Icons.ico_potion_red}" click="{Engine.engine.f_use_filter = !Engine.engine.f_use_filter}" />
 	<s:Label text="Фильтр" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
 </mx:HBox>
 <s:HGroup width="100%" horizontalAlign="center">
@@ -75,19 +76,20 @@ protected function on_replace_to_department(event:MouseEvent):void
 </s:HGroup>
 <s:Spacer height="20" />
 <mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
-	<s:Label text="Груповые операции" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
+	<s:Image source="{Icons.ico_box}" />
+	<s:Label text="Групповые операции" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
 </mx:HBox>
 
 <s:VGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}">
 <s:Label text="Произвести групповое увольнение по фильтру" />
-<controls:BarButton id="btn_del_employees" label="Уволить ВСЕХ!!!"  icon="{Icons.ico_delete}" click="btn_del_employees_clickHandler(event)"  />	
+<controls:BarButton id="btn_del_employees" label="Уволить ВСЕХ!!!"  icon="{Icons.ico_delete}" enabled="{Engine.engine.employee_num_records != 0}" click="btn_del_employees_clickHandler(event)"  />	
 <s:Spacer height="20" />
 <s:Label text="Произвести перемещение группы в другой отдел" />
 
 <s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}" paddingLeft="20" paddingRight="20">	
 	<s:DropDownList id="inp_Dept" dataProvider="{Engine.engine.dep_dp}" width="100%" labelField="DeptName"  />
 	<s:Image id="del_Dept" source="{Icons.ico_delete}" width="24" click="{inp_Dept.selectedIndex = -1}"   />
-	<s:Button label="Перевести" click="on_replace_to_department(event)" />
+	<s:Button label="Перевести" click="on_replace_to_department(event)" enabled="{Engine.engine.employee_num_records != 0}" />
 </s:HGroup>
 
 </s:VGroup>	

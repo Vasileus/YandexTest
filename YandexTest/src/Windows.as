@@ -37,8 +37,15 @@ protected var wnd_add_employee:AppTitleWindow;
 public function add_employee():void
 {
 	open_window(this, "wnd_add_employee", "Добавить сотрудника",  480, 400, AddEmployeeWindow);
-	
 }
+
+protected var wnd_confirm_delete:AppTitleWindow;
+
+public function confirm_delete():void
+{
+	open_window(this, "wnd_confirm_delete", "Подтвердждение Увольнения",  340, 240, ConfirmDeleteWindow, true);
+}
+
 
 protected var wnd_edit_employee:AppTitleWindow;
 
@@ -55,14 +62,14 @@ public function edit_employee(dg:DataGridEx):void
 
 
 
-protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class, ini:Object = null):AppTitleWindow
+protected function open_window(papa:Object, ref:String, title:String, width:int, height:int, clazz:Class, f_modal:Boolean = false, ini:Object = null):AppTitleWindow
 {
 	if (papa[ref] != null) {
 		PopUpManager.bringToFront(papa[ref]);
 		return papa[ref];
 	}
 	
-	var w:AppTitleWindow  = papa[ref] = PopUpManager.createPopUp(AppWindow.app, AppTitleWindow, false) as AppTitleWindow;
+	var w:AppTitleWindow  = papa[ref] = PopUpManager.createPopUp(AppWindow.app, AppTitleWindow, f_modal) as AppTitleWindow;
 	w.addEventListener(CloseEvent.CLOSE, on_app_window_close);
 	
 	w.ref = ref;	

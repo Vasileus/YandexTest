@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+<fx:Script>
+<![CDATA[
+import mx.events.CloseEvent;
+
+protected function btn_ok_click(e:Event):void
+{
+	Engine.engine.delete_employees_by_filter();
+	Engine.engine.query_emploeyes_page(0);
+	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true));
+}
+
+]]>
+</fx:Script>
+
+<s:HGroup width="100%" height="100%" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8">
+	
+<s:Image source="@Embed(source='./assets/warning.png')"/>
+<s:TextArea text="Вы действительно хотите уволить {Engine.engine.employee_num_records} сотрудник(ов)?" width="100%" height="100%" borderVisible="false" editable="false"/>	
+
+</s:HGroup>
+	
+<s:HGroup width="100%" horizontalAlign="right">
+	<s:Button id="btn_ok"  label="Да, уволить!" click="btn_ok_click(event)" />
+	<s:Button id="btn_cancel" label="Отменить" click="{dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))}" />
+</s:HGroup>
+	
+	
+<fx:Declarations>
+</fx:Declarations>
+</mx:VBox>

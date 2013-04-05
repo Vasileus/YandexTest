@@ -16,6 +16,7 @@
     <classEntry path="EmployeeWindow"/>
     <classEntry path="Windows"/>
     <classEntry path="FilterWidow"/>
+    <classEntry path="ConfirmDeleteWindow"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

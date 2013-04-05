@@ -31,4 +31,13 @@ public function Icons()
 [Embed(source="./assets/check.png")]
 [Bindable] public static var ico_check:Class;
 
+[Embed(source="./assets/potion_green.png")]
+[Bindable] public static var ico_potion_green:Class;
+
+[Embed(source="./assets/potion_red.png")]
+[Bindable] public static var ico_potion_red:Class;
+
+[Embed(source="./assets/box.png")]
+[Bindable] public static var ico_box:Class;
+
 }}

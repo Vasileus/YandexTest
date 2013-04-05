@@ -251,13 +251,13 @@ public function delete_employee(id:int):void
 	query_execute(sql, null, common_result, common_error);
 }
 
-public function delete_employees_by_flter():void
+public function delete_employees_by_filter():void
 {
 	var sql:String = "DELETE FROM Employees " + filter_string() +  "";
 	query_execute(sql, null, common_result, common_error);
 }
 
-public function replace_employees_to_department_by_flter(id:int):void
+public function replace_employees_to_department_by_fllter(id:int):void
 {
 	var sql:String = "UPDATE  Employees SET DeptID=" + id + " " + filter_string() +  "";
 	query_execute(sql, null, common_result, common_error);

@@ -70,9 +70,9 @@ protected function on_file_selected(e:Event):void
 	engine.open_database_connection(file_name, disp_name);	
 }	
 
-public function change_item(id:int, name:String, value:String):void
+public function change_item(item:Employee, fn:String, old_value:*):void
 {
-	engine.update_employee_field(id, name, value);
+	engine.update_employee_field(item, fn, old_value);
 }
 	
 	
@@ -87,9 +87,9 @@ protected function btn_del_employee_clickHandler(event:MouseEvent):void
 	
 	pi_update = dg.selectedIndex;
 	
-	var id:int = (dg.selectedItem as Employee).EmplID;
+	var item:Employee = dg.selectedItem as Employee;
 	
-	engine.delete_employee(id);
+	engine.del_employee(item);
 	engine.query_emploeyes();
 }
 
@@ -135,6 +135,8 @@ protected function dg_double_click(event:MouseEvent):void
 		<controls:BarButton label="Отделения" click="{Windows.windows.departments()}" />		
 		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.add}" click="{Windows.windows.add_employee()}" enabled="{Engine.engine.f_connected}" />
 		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.remove}" click="btn_del_employee_clickHandler(event)" enabled="{dg.selectedIndex >= 0}" />
+		<s:Spacer width="40" />
+		<controls:BarButton label="Правка" click="{Windows.windows.edit_employee(dg)}" icon="{Icons.data_edit}" />
 		<s:Spacer width="100%" />
 		
 		<controls:BarButton label="SQLog" icon="{Icons.notebook}" click="{Windows.windows.sqlog()}"/>
@@ -148,18 +150,18 @@ protected function dg_double_click(event:MouseEvent):void
 	<mx:VBox width="100%" height="100%">
 		
 		
-	<controls:DataGridEx id="dg" width="100%" height="100%" dataProvider="{Engine.engine.emp_dp}" columns="{columns}" user_data="{list_data}" doubleClick="dg_double_click(event)" doubleClickEnabled="true"/>
+	<controls:DataGridEx id="dg" width="100%" height="100%" minWidth="400" dataProvider="{Engine.engine.emp_dp}" columns="{columns}" user_data="{list_data}" doubleClick="dg_double_click(event)" doubleClickEnabled="true"/>
 		
-	<mx:HBox width="100%" verticalAlign="middle">
-		<controls:BarButton label="Правка" click="{Windows.windows.edit_employee(dg)}" icon="{Icons.data_edit}" />
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
+		<controls:BarButton width="40" icon="{Icons.media_beginning}" toolTip="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" />
+		<controls:BarButton width="40" icon="{Icons.media_rewind}" toolTip="&lt;&lt; Пред. Страница" click="{engine.query_emploeyes_page(-1)}" />
+		<controls:BarButton width="40" icon="{Icons.media_fast_forward}" toolTip="&gt;&gt; След. Страница" click="{engine.query_emploeyes_page( 1)}"/>
+		<controls:BarButton width="40" icon="{Icons.media_end}" toolTip="Посл. Страница" click="{engine.query_emploeyes_page(int.MAX_VALUE)}" />
 		<s:Spacer width="20" />
 		<s:Label id="lbl_page" text="Страница : {Utils.fmt_int(engine.page_start + 1)} из {engine.page_total != 0 ? Utils.fmt_int(engine.page_total) : 1 }" paddingTop="4" minWidth="{lbl_page.width}"/>
-		<controls:BarButton label="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" />
-		<controls:BarButton label="&lt;&lt; Пред. Страница" click="{engine.query_emploeyes_page(-1)}" />
-		<controls:BarButton label="&gt;&gt; След. Страница" click="{engine.query_emploeyes_page( 1)}"/>
-		<controls:BarButton label="Посл. Страница" click="{engine.query_emploeyes_page(engine.page_total - 1)}" />
-		<s:Spacer width="100%" />
+		<s:Spacer width="100%" minWidth="20" />
 		<s:Label id="lbl_rec" text="Кол-во записей : {Utils.fmt_int(engine.emp_dp.length)} / {Utils.fmt_int(engine.employee_num_records)}" paddingTop="4" minWidth="{lbl_rec.width}"/>		
+		<s:Spacer width="20" />
 		<controls:BarButton label="Обновить" click="{Engine.engine.query_emploeyes()}" />
 	</mx:HBox>
 		

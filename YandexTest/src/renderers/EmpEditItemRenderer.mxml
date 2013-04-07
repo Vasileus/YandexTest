@@ -224,7 +224,7 @@ protected function inp_focusOutHandler(event:FocusEvent):void
 protected function change_item():void
 {
 	if (get_papa() != null) {
-		get_papa().change_item(get_id(), get_fn(), inp.text);		
+		get_papa().change_item(data, get_fn(), changer);		
 	}
 	
 }

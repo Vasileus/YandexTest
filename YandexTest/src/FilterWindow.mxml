@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="100%" xmlns:local="*" backgroundColor="#EEEEEE" 
+		 paddingLeft="8" paddingRight="8" paddingBottom="8" paddingTop="8" borderColor="#808080" borderVisible="true" borderStyle="solid" creationComplete="on_creation_complete(event)" xmlns:controls="controls.*">
+	
+<fx:Script>
+<![CDATA[
+	import mx.collections.ArrayCollection;
+	import mx.core.Window;
+	import mx.events.FlexEvent;
+
+[Bindable] private var dep_dp:ArrayCollection;
+	
+protected function on_creation_complete(event:FlexEvent):void
+{
+	wnd.item = Engine.engine.filter;
+	dep_dp = Engine.engine.departments_ac;
+}
+	
+	
+	
+protected function on_refresh(event:MouseEvent = null):void
+{
+	Engine.engine.query_emploeyes_page(0);
+	
+}
+
+
+protected function on_reset(event:MouseEvent):void
+{
+	wnd.item.DeptID = 0;
+	wnd.item.FirstName = "";	
+	wnd.item.LastName = "";
+	wnd.item.Position = "";
+	on_refresh();
+}
+
+	
+	
+protected function on_btn_del_employees_click(event:MouseEvent):void
+{
+	Windows.windows.confirm_delete();
+}
+	
+protected function on_replace_to_department(event:MouseEvent):void
+{
+	var id:int = 0;
+	if (inp_Dept.selectedItem != null) {
+		id = (inp_Dept.selectedItem as Department).DeptID
+	}
+	
+	Engine.engine.replace_employees_to_department_by_fllter(id);
+	on_refresh();	
+}
+	
+]]>
+</fx:Script>
+	
+	
+<mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
+	<s:Image source="{Engine.engine.f_use_filter ? Icons.potion_green : Icons.potion_red}" click="{Engine.engine.f_use_filter = !Engine.engine.f_use_filter}" />
+	<s:Label text="Фильтр" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
+</mx:HBox>
+<s:HGroup width="100%" horizontalAlign="center">
+<s:CheckBox label="Включить Фильтр" selected="@{Engine.engine.f_use_filter}" click="on_refresh(event)" />	
+</s:HGroup>
+	
+<local:EmployeeWindow id="wnd" width="100%" enabled="{Engine.engine.f_use_filter}"/>
+
+	
+	
+<s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}">
+	<s:CheckBox label="LIKE" selected="@{Engine.engine.f_filter_like}" click="on_refresh(event)" />
+	<s:Button label="Применить Фильтр" click="on_refresh(event)" />	
+	<s:Button label="Сбросить Фильтр" click="on_reset(event)" />
+
+</s:HGroup>
+<s:Spacer height="20" />
+<mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
+	<s:Image source="{Icons.box}" />
+	<s:Label text="Групповые операции" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
+</mx:HBox>
+
+<s:VGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}">
+<s:Label text="Произвести групповое увольнение по фильтру" />
+<controls:BarButton id="btn_del_employees" label="Уволить ВСЕХ!!!"  icon="{Icons.remove}" enabled="{Engine.engine.employee_num_records != 0}" click="on_btn_del_employees_click(event)"  />	
+<s:Spacer height="20" />
+<s:Label text="Произвести перемещение группы в другой отдел" />
+
+<s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}" paddingLeft="20" paddingRight="20">	
+	<s:DropDownList id="inp_Dept" dataProvider="{dep_dp}" width="100%" labelField="DeptName"  />
+	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{inp_Dept.selectedIndex = -1}"   />
+	<s:Button label="Перевести" click="on_replace_to_department(event)" enabled="{Engine.engine.employee_num_records != 0}" />
+</s:HGroup>
+
+</s:VGroup>	
+	
+<fx:Declarations>
+</fx:Declarations>
+</mx:VBox>

@@ -64,4 +64,17 @@ public function Icons()
 [Bindable] public static var data_ok:Class;
 
 
+
+[Embed(source="./assets/media_beginning.png")]
+[Bindable] public static var media_beginning:Class;
+
+[Embed(source="./assets/media_end.png")]
+[Bindable] public static var media_end:Class;
+
+[Embed(source="./assets/media_fast_forward.png")]
+[Bindable] public static var media_fast_forward:Class;
+
+[Embed(source="./assets/media_rewind.png")]
+[Bindable] public static var media_rewind:Class;
+
 }}

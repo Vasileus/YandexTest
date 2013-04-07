@@ -89,7 +89,7 @@ protected function update(p:* = null):Boolean
 
 public function change_item(id:int, name:String, value:*):void
 {
-	Engine.engine.update_employee_field(id, name, value);
+	Engine.engine.update_employee_field(wnd.item, name, value);
 }
 
 private function handleValid(e:ValidationResultEvent):void

@@ -77,7 +77,7 @@ protected function db_icon(cnt:int, connected:Boolean, view:Boolean, error:Boole
 <mx:HBox width="1" height="100%" backgroundColor="#808080" paddingLeft="8" paddingRight="8"/>
 <s:Label id="lbl_cpu" text="ЦП: {Utils.fmt_int(cpu)}" minWidth="{lbl_cpu.width}" />
 <mx:HBox width="1" height="100%" backgroundColor="#808080" paddingLeft="8" paddingRight="8"/>
-<s:Label id="lbl_ram" text="ОЗУ: {Utils.fmt_int(Math.ceil(ram / 1024))} КБ" minWidth="{lbl_ram.width}" />
+<s:Label id="lbl_ram" text="ОЗУ: {Utils.fmt_int(Math.ceil(ram / 1024))} КБ" minWidth="{lbl_ram.width}" click="{System.gc()}" />
 <mx:HBox width="1" height="100%" backgroundColor="#808080" paddingLeft="8" paddingRight="8"/>	
 <mx:ProgressBar id="pb" minWidth="100" mode="manual" indeterminate="true" labelPlacement="left" label="" minimum="0" maximum="100" hideEffect="Fade"  />
 <s:Image source="{db_icon(cnt, sc.f_connected, sc.f_data_view, sc.f_data_error)}" width="24" horizontalAlign="right" />

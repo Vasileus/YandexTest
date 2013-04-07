@@ -217,9 +217,11 @@ protected function inp_name_focusInHandler(event:FocusEvent):void
 	var id:int = data.DeptID;
 	var name:String = data.DeptName;
 	
-	if (id < 0) {
+//	if (id < 0) {
 		inp_name.text = data.DeptName;
-	}
+//	}
+	
+	
 	
 	set_text_input_color();
 }
@@ -233,14 +235,19 @@ protected function inp_name_focusOutHandler(event:FocusEvent):void
 
 	var text:String = StringUtil.trim(inp_name.text);
 	
-	data.DeptName = inp_name.text = text;
+	data.DeptName = /*inp_name.text = */ text;
 	
 	var id:int = data.DeptID;
 	var name:String = data.DeptName;
 	
-	if (id < 0 && name == "") {
-		inp_name.text = text_new_department;		
-	}
+//	if (id < 0 && name == "") {
+//		inp_name.text = text_new_department;		
+//	}
+	
+//	if (id >= 0) {
+		inp_name.text = get_name_text(data);
+//	}
+	
 	
 	set_text_input_color();
 	
@@ -383,11 +390,14 @@ protected function get_name_text(data:Object):String
 	if (data == null) return "";
 	
 	
+
+	
 	var id:int = data.DeptID;
 	var name:String = data.DeptName;
 	
 	if (id >= 0) {
-		return name;
+		var v:* = Engine.engine.departments_employees_count[id];
+		return name + (v != null ?  '  [ ' + Utils.fmt_int(v) + ' ]': '');
 	}
 
 	if (name == "") {
@@ -396,6 +406,14 @@ protected function get_name_text(data:Object):String
 
 	return name;
 }
+	
+protected function updater(v:int):Boolean
+{
+	if (!f_text_inp_focused) {
+		inp_name.text = get_name_text(data);
+	}
+	return true;
+}	
 	
 ]]>
 </fx:Script>
@@ -420,6 +438,7 @@ protected function get_name_text(data:Object):String
 <s:Image id="ico_del" source="{(f_selected &amp;&amp; !(changer &amp;&amp; changer.f_deleted))  ? Icons._delete : null}" width="24" click="ico_del_clickHandler(event)" />
 	
 <fx:Declarations>
+<fx:Boolean>{updater(Engine.engine.departments_employees_count_update_count)}</fx:Boolean>
 
 </fx:Declarations>
 </mx:HBox>

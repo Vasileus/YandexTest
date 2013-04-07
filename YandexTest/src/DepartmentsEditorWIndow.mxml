@@ -24,7 +24,9 @@ import renderers.DeptEditItemRenderer;
 protected function on_creation_complete(event:FlexEvent):void
 {
 //	dp = Engine.engine.departments_ac;
-	reset_dp();
+	if (engine.f_connected) {
+		reset_dp();
+	}
 }
 
 protected function reset_dp():void
@@ -212,19 +214,38 @@ protected function apply_done():void
 //	dp = null;
 	
 //	callLater(Engine.engine.query_departments, [query_departments_done]);	
-	engine.query_departments(query_departments_done);	
+	engine.query_departments();	
 }
 	
-protected function query_departments_done():void
-{
-	reset_dp();	
-}
 
 protected function on_btn_close_click(event:MouseEvent):void
 {
 	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true));
 	
 }
+
+protected function connector(v:Boolean):Boolean
+{
+	if (!engine.f_connected) {
+		dp = null;
+		f_apply = false;
+	}
+
+	user_data.changer = changer = new ObjectEx();
+	
+	return v;	
+}
+
+protected function updater(v:int):Boolean
+{
+	if (engine.f_connected) {
+		reset_dp();
+		user_data.changer = changer = new ObjectEx();
+		f_apply = false;
+	}
+	return true;
+}
+	
 	
 ]]>
 </fx:Script>
@@ -240,11 +261,13 @@ protected function on_btn_close_click(event:MouseEvent):void
 <mx:HBox width="100%" horizontalAlign="right">
 	<s:Button id="btn_apply" label="Применить" enabled="{!f_apply &amp;&amp; changer._ != 0 }" click="{cmd_apply()}"  />	
 	<s:Button id="btn_discard" label="Сбросить" enabled="{!f_apply &amp;&amp; changer._ != 0}" click="{cmd_discard()}" />
-	<s:Button id="btn_close" label="Закрыть" enabled="{!f_apply &amp;&amp; changer._  == 0}" click="on_btn_close_click(event)" />
+	<s:Button id="btn_close" label="Закрыть" enabled="{!engine.f_connected || (!f_apply &amp;&amp; changer._  == 0)}" click="on_btn_close_click(event)" />
 </mx:HBox>	
 	
 	
 	
 <fx:Declarations>
+<fx:Boolean>{connector(engine.f_connected)}</fx:Boolean>
+<fx:Boolean>{updater(engine.departments_query_count)}</fx:Boolean>
 </fx:Declarations>
 </mx:VBox>

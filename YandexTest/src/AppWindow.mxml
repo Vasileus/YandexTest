@@ -37,6 +37,8 @@ protected function on_initialize(event:FlexEvent):void
 protected function on_creation_complete(event:FlexEvent):void
 {
 	setTimeout(Engine.engine.open_database_connection, 500);
+	
+	dg_holder.addEventListener(MouseEvent.DOUBLE_CLICK, dg_double_click, true);
 //	callLater(Engine.engine.open_database_connection, [""]);
 //	Engine.engine.open_database_connection("");
 }
@@ -149,8 +151,9 @@ protected function dg_double_click(event:MouseEvent):void
 
 	<mx:VBox width="100%" height="100%">
 		
-		
-	<controls:DataGridEx id="dg" width="100%" height="100%" minWidth="400" dataProvider="{Engine.engine.emp_dp}" columns="{columns}" user_data="{list_data}" doubleClick="dg_double_click(event)" doubleClickEnabled="true"/>
+	<s:HGroup id="dg_holder" doubleClickEnabled="true" width="100%" height="100%">
+	<controls:DataGridEx id="dg" width="100%" height="100%" minWidth="400" dataProvider="{engine.emp_dp}" columns="{columns}" user_data="{list_data}" />
+	</s:HGroup>
 		
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
 		<controls:BarButton width="40" icon="{Icons.media_beginning}" toolTip="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" />

@@ -53,13 +53,15 @@ public function close_database_connection():void
 	sql_connection.removeEventListener(SQLEvent.OPEN, on_database_open);
 	sql_connection.removeEventListener(SQLErrorEvent.ERROR, on_database_open_error);
 	if (sql_statement != null) {
+
 		sql_statement.removeEventListener(SQLEvent.RESULT, _internal_result);
 		sql_statement.removeEventListener(SQLErrorEvent.ERROR, _internal_error);
-
 		
 		if (sql_statement.executing) {
+			sql_statement.addEventListener(SQLErrorEvent.ERROR, _internal_error_cancel); // Глупость какая-то, но без этого - UNHANDLED EVENT ERROR
 			sql_statement.cancel();
 		}
+
 		sql_statement = null;
 	}
 	queue.splice(0);
@@ -151,7 +153,7 @@ protected function do_database_open():void
 [Bindable] public var f_executing_sql_queue:Boolean = false;
 
 [Bindable] public var sql_log:String = "";
-public var sql_log_limit:int = 4 * 1024;
+public var sql_log_limit:int = 4 * 1024; // Лимит ЛОГа в символах
 
 
 protected function log(s:String, cr:Boolean = true):void
@@ -242,21 +244,30 @@ protected function _internal_result(e:SQLEvent):void
 	call_later(do_queue);
 	
 }
-
+	
 protected function _internal_error(e:SQLErrorEvent):void
 {
 	f_executing_sql_statement = false;
 	var ss:SQLStatement = e.target as SQLStatement; 
+	log("ERROR: " + e.error.details);	
+		
 	if (current_query != null && current_query.responder != null) {
 		current_query.responder(null, e, current_query.params);
 	}
-	log("ERROR: " + e.error.details);
+
 	
 //	ss.removeEventListener(SQLEvent.RESULT, _internal_result);
 //	ss.removeEventListener(SQLErrorEvent.ERROR, _internal_error);
 //	sql_statement = null;
 	current_query = null;
 	call_later(do_queue);
+}
+
+protected function _internal_error_cancel(e:SQLErrorEvent):void
+{
+	var ss:SQLStatement = e.target as SQLStatement;
+	ss.removeEventListener(SQLErrorEvent.ERROR, _internal_error_cancel)
+	log("ERROR: " + e.error.details + (e.error.errorID == 3118 ? " SQL Operation  canceled"  :  (" ID = " + e.error.errorID))); // 3118
 }
 
 

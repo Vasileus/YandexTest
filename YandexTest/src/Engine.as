@@ -263,12 +263,14 @@ public function delete_employees_by_filter():void
 {
 	var sql:String = "DELETE FROM Employees " + filter_string() +  "";
 	query_execute(sql, null, null);
+	query_departments_emp_count();
 }
 
 public function replace_employees_to_department_by_fllter(id:int):void
 {
 	var sql:String = "UPDATE  Employees SET DeptID=" + id + " " + filter_string() +  "";
 	query_execute(sql, null, null);
+	query_departments_emp_count();
 }
 
 // Добавитить сотрудника

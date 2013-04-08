@@ -386,10 +386,6 @@ protected function query_departments_result(e:SQLEvent, error:SQLErrorEvent, par
 		departments[i] = new Department(o['DeptID'], o['DeptName']);
 		departments_index[departments[i].DeptID] = i;
 	}
-	
-	
-//	departments.push(new Department(-1, ""));
-	
 
 	departments_ac.source = departments;
 	departments_query_count++;

@@ -397,7 +397,7 @@ protected function get_name_text(data:Object):String
 	
 	if (id >= 0) {
 		var v:* = Engine.engine.departments_employees_count[id];
-		return name + (v != null ?  '  [ ' + Utils.fmt_int(v) + ' ]': '');
+		return name + ((v != null && v != 0) ?  '  [ ' + Utils.fmt_int(v) + ' ]': '');
 	}
 
 	if (name == "") {

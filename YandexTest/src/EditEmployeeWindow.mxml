@@ -87,9 +87,9 @@ protected function update(p:* = null):Boolean
 	return true;
 }
 
-public function change_item(id:int, name:String, value:*):void
+public function change_item(item:Employee, fn:String, old_value:*):void
 {
-	Engine.engine.update_employee_field(wnd.item, name, value);
+	Engine.engine.update_employee_field(wnd.item, fn, old_value);
 }
 
 private function handleValid(e:ValidationResultEvent):void

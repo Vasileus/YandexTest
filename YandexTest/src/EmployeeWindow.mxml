@@ -59,7 +59,9 @@ protected function get_dept_index(id:int):int
 protected function inp_Dept_change(event:IndexChangeEvent):void
 {
 	if (item != null) {
+		var old_value:int = item.DeptID; 
 		item.DeptID = (dep_dp.getItemAt(inp_Dept.selectedIndex) as Department).DeptID;
+		change_item(item, "DeptID", old_value);
 	}
 }
 	
@@ -73,7 +75,7 @@ protected function foc_out(e:FocusEvent):void
 
 	if (item != null) {
 		item[fn] = text;
-		change_item(item.EmplID, fn, text);
+		change_item(item, fn, text);
 	}
 }
 	
@@ -93,7 +95,7 @@ protected function inp_change(e:TextOperationEvent):void
 protected function dept_out(event:FocusEvent):void
 {
 	if (item != null) {
-		change_item(item.EmplID, "DeptID", item.DeptID);
+//		change_item(item.EmplID, "DeptID", item.DeptID);
 	}
 }
 	

@@ -60,11 +60,11 @@ protected function on_replace_to_department(event:MouseEvent):void
 	
 	
 <mx:HBox backgroundColor="#A0AAA0" width="100%" minHeight="30" verticalAlign="middle" paddingLeft="8" paddingRight="8">
-	<s:Image source="{engine.f_use_filter ? Icons.potion_green : Icons.potion_red}" click="{engine.f_use_filter = !engine.f_use_filter}" />
+	<s:Image source="{engine.f_use_filter ? Icons.potion_green : Icons.potion_red}" click="{engine.f_use_filter = !engine.f_use_filter}" enabled="{!engine.f_executing_sql_queue}" />
 	<s:Label text="Фильтр" color="#FFFFFF" fontWeight="bold" fontSize="{14}"/>
 </mx:HBox>
 <s:HGroup width="100%" horizontalAlign="center">
-<s:CheckBox label="Включить Фильтр" selected="@{engine.f_use_filter}" click="on_refresh(event)" />	
+<s:CheckBox label="Включить Фильтр" selected="@{engine.f_use_filter}" click="on_refresh(event)" enabled="{!engine.f_executing_sql_queue}" />	
 </s:HGroup>
 	
 <local:EmployeeWindow id="wnd" width="100%" enabled="{Engine.engine.f_use_filter}"/>
@@ -72,9 +72,9 @@ protected function on_replace_to_department(event:MouseEvent):void
 	
 	
 <s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{engine.f_use_filter}">
-	<s:CheckBox label="LIKE" selected="@{engine.f_filter_like}" click="on_refresh(event)" />
-	<s:Button label="Применить Фильтр" click="on_refresh(event)" />	
-	<s:Button label="Сбросить Фильтр" click="on_reset(event)" />
+	<s:CheckBox label="LIKE" selected="@{engine.f_filter_like}" click="on_refresh(event)" enabled="{f_db_ready}" />
+	<s:Button label="Применить Фильтр" click="on_refresh(event)" enabled="{f_db_ready}" />	
+	<s:Button label="Сбросить Фильтр" click="on_reset(event)" enabled="{f_db_ready}" />
 
 </s:HGroup>
 <s:Spacer height="20" />
@@ -85,18 +85,19 @@ protected function on_replace_to_department(event:MouseEvent):void
 
 <s:VGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}">
 <s:Label text="Произвести групповое увольнение по фильтру" />
-<controls:BarButton id="btn_del_employees" label="Уволить ВСЕХ!!!"  icon="{Icons.remove}" enabled="{engine.employee_num_records != 0 &amp;&amp; engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}" click="on_btn_del_employees_click(event)"  />	
+<controls:BarButton id="btn_del_employees" label="Уволить ВСЕХ!!!"  icon="{Icons.remove}" enabled="{engine.employee_num_records != 0 &amp;&amp; f_db_ready}" click="on_btn_del_employees_click(event)"  />	
 <s:Spacer height="20" />
 <s:Label text="Произвести перемещение группы в другой отдел" />
 
 <s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}" paddingLeft="20" paddingRight="20">	
 	<s:DropDownList id="inp_Dept" dataProvider="{dep_dp}" width="100%" labelField="DeptName"  />
 	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{inp_Dept.selectedIndex = -1}"   />
-	<s:Button label="Перевести" click="on_replace_to_department(event)" enabled="{engine.employee_num_records != 0 &amp;&amp; engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}" />
+	<s:Button label="Перевести" click="on_replace_to_department(event)" enabled="{engine.employee_num_records != 0 &amp;&amp; f_db_ready}" />
 </s:HGroup>
 
 </s:VGroup>	
 	
 <fx:Declarations>
+<fx:Boolean id="f_db_ready">{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}</fx:Boolean>	
 </fx:Declarations>
 </mx:VBox>

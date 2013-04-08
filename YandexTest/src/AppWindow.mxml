@@ -136,7 +136,7 @@ protected function dg_double_click(event:MouseEvent):void
 
 		<controls:BarButton label="Отделения" click="{Windows.windows.departments()}" />		
 		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.add}" click="{Windows.windows.add_employee()}" enabled="{Engine.engine.f_connected}" />
-		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.remove}" click="btn_del_employee_clickHandler(event)" enabled="{(dg.selectedIndex >= 0) &amp;&amp; !engine.f_executing_sql_queue}" />
+		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.remove}" click="btn_del_employee_clickHandler(event)" enabled="{(dg.selectedIndex >= 0) &amp;&amp; f_db_ready}" />
 		<s:Spacer width="40" />
 		<controls:BarButton label="Правка" click="{Windows.windows.edit_employee(dg)}" icon="{Icons.data_edit}" />
 		<s:Spacer width="100%" />
@@ -156,16 +156,16 @@ protected function dg_double_click(event:MouseEvent):void
 	</s:HGroup>
 		
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
-		<controls:BarButton width="40" icon="{Icons.media_beginning}" toolTip="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" enabled="{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}" />
-		<controls:BarButton width="40" icon="{Icons.media_rewind}" toolTip="&lt;&lt; Пред. Страница" click="{engine.query_emploeyes_page(-1)}" enabled="{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}" />
-		<controls:BarButton width="40" icon="{Icons.media_fast_forward}" toolTip="&gt;&gt; След. Страница" click="{engine.query_emploeyes_page( 1)}" enabled="{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}" />
-		<controls:BarButton width="40" icon="{Icons.media_end}" toolTip="Посл. Страница" click="{engine.query_emploeyes_page(int.MAX_VALUE)}" enabled="{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}"  />
+		<controls:BarButton width="40" icon="{Icons.media_beginning}" toolTip="Нач. Страница" click="{Engine.engine.query_emploeyes_page(0)}" enabled="{f_db_ready}" />
+		<controls:BarButton width="40" icon="{Icons.media_rewind}" toolTip="&lt;&lt; Пред. Страница" click="{engine.query_emploeyes_page(-1)}" enabled="{f_db_ready}" />
+		<controls:BarButton width="40" icon="{Icons.media_fast_forward}" toolTip="&gt;&gt; След. Страница" click="{engine.query_emploeyes_page( 1)}" enabled="{f_db_ready}" />
+		<controls:BarButton width="40" icon="{Icons.media_end}" toolTip="Посл. Страница" click="{engine.query_emploeyes_page(int.MAX_VALUE)}" enabled="{f_db_ready}"  />
 		<s:Spacer width="20" />
 		<s:Label id="lbl_page" text="Страница : {Utils.fmt_int(engine.page_start + 1)} из {engine.page_total != 0 ? Utils.fmt_int(engine.page_total) : 1 }" paddingTop="4" minWidth="{lbl_page.width}"/>
 		<s:Spacer width="100%" minWidth="20" />
 		<s:Label id="lbl_rec" text="Кол-во записей : {Utils.fmt_int(engine.emp_dp.length)} / {Utils.fmt_int(engine.employee_num_records)}" paddingTop="4" minWidth="{lbl_rec.width}"/>		
 		<s:Spacer width="20" />
-		<controls:BarButton label="Обновить" click="{Engine.engine.query_emploeyes()}" enabled="{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}" />
+		<controls:BarButton label="Обновить" click="{Engine.engine.query_emploeyes()}" enabled="{f_db_ready}" />
 	</mx:HBox>
 		
 	</mx:VBox>		
@@ -193,6 +193,7 @@ protected function dg_double_click(event:MouseEvent):void
 	
 <fx:Boolean>{change_dp(Engine.engine.emp_dp.length)}</fx:Boolean>
 	
+<fx:Boolean id="f_db_ready">{engine.f_connected &amp;&amp; !engine.f_executing_sql_queue}</fx:Boolean>
 	
 </fx:Declarations>
 </mx:VBox>

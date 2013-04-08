@@ -9,6 +9,7 @@
 	import controls.DataGridEx;
 	
 	import mx.collections.ArrayCollection;
+	import mx.core.UIComponent;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
 	import mx.events.ValidationResultEvent;
@@ -83,7 +84,15 @@ protected function dn_click(event:MouseEvent):void
 
 protected function update(p:* = null):Boolean
 {
+	var o:UIComponent = getFocus() as UIComponent;
+	btn_close.setFocus();
 	wnd.item = dg.selectedItem as Employee;	
+	
+	if (o != null) {
+		o.setFocus();
+	}
+	
+	
 	return true;
 }
 
@@ -91,7 +100,7 @@ public function change_item(item:Employee, fn:String, old_value:*):void
 {
 	if (wnd.item.DeptID < 0) wnd.item.DeptID = 0;
 	
-	if (fn == 'DeptID' && (wnd.item.DeptID == int(old_value))) return;
+	if (wnd.item[fn] == old_value) return;
 	
 	Engine.engine.update_employee_field(wnd.item, fn, old_value);
 }
@@ -122,7 +131,7 @@ private function handleValid(e:ValidationResultEvent):void
 	<s:Button id="up" label="▲"  fontSize="8" maxWidth="48" click="up_click(event)" enabled="{(dg.dataProvider as ArrayCollection).length != 0}" />
 	<s:Button id="dn" label="▼"  fontSize="8" maxWidth="48" click="dn_click(event)" enabled="{up.enabled}"/>	
 	<s:Spacer width="16" />
-	<s:Button label="Закрыть" click="{dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))}" />
+	<s:Button id="btn_close" label="Закрыть" click="{dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))}" />
 </s:HGroup>
 	
 	

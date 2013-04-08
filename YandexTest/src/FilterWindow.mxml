@@ -50,6 +50,9 @@ protected function on_replace_to_department(event:MouseEvent):void
 	if (inp_Dept.selectedItem != null) {
 		id = (inp_Dept.selectedItem as Department).DeptID
 	}
+	if (id < 0)
+		id = 0;
+	
 	
 	engine.replace_employees_to_department_by_fllter(id);
 	on_refresh();	

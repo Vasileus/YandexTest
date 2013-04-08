@@ -409,6 +409,7 @@ protected function query_departments_result(e:SQLEvent, error:SQLErrorEvent, par
 public function apply_departments_changes(departments:Array, changes:ObjectEx, done:Function):void
 {
 	var params:Object = { count: 0, done: done  };
+	var f_del:Boolean = false;
 	
 	for (var key:String in changes) {
 		var id:int = int(key);		
@@ -416,7 +417,7 @@ public function apply_departments_changes(departments:Array, changes:ObjectEx, d
 		
 		if (ch.f_deleted && id >= 0) {
 			params.count++;
-
+			f_del = true;
 			// Обновляем индекс в Employees
 			var sql:String = "UPDATE  Employees SET DeptID=0 WHERE DeptID=" + id +  "";
 			query_execute(sql, params, apply_departments_changes_result);
@@ -461,6 +462,10 @@ public function apply_departments_changes(departments:Array, changes:ObjectEx, d
 		}
 	}
 
+	if (f_del) {
+		query_departments_emp_count();
+	}
+	
 
 }
 

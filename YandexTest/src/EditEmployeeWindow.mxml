@@ -84,7 +84,9 @@ protected function dn_click(event:MouseEvent):void
 
 protected function update(p:* = null):Boolean
 {
-	var o:UIComponent = getFocus() as UIComponent;
+
+//	var o:UIComponent = getFocus() as UIComponent;
+	var o:UIComponent = focusManager.getFocus() as UIComponent;
 	btn_close.setFocus();
 	wnd.item = dg.selectedItem as Employee;	
 	

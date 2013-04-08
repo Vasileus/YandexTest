@@ -136,7 +136,7 @@ protected function dg_double_click(event:MouseEvent):void
 
 		<controls:BarButton label="Отделения" click="{Windows.windows.departments()}" />		
 		<controls:BarButton id="btn_add_employee" label="Добавить" icon="{Icons.add}" click="{Windows.windows.add_employee()}" enabled="{Engine.engine.f_connected}" />
-		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.remove}" click="btn_del_employee_clickHandler(event)" enabled="{dg.selectedIndex >= 0}" />
+		<controls:BarButton id="btn_del_employee" label="Уволить"  icon="{Icons.remove}" click="btn_del_employee_clickHandler(event)" enabled="{(dg.selectedIndex >= 0) &amp;&amp; !engine.f_executing_sql_queue}" />
 		<s:Spacer width="40" />
 		<controls:BarButton label="Правка" click="{Windows.windows.edit_employee(dg)}" icon="{Icons.data_edit}" />
 		<s:Spacer width="100%" />

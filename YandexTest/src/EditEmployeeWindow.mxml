@@ -89,6 +89,10 @@ protected function update(p:* = null):Boolean
 
 public function change_item(item:Employee, fn:String, old_value:*):void
 {
+	if (wnd.item.DeptID < 0) wnd.item.DeptID = 0;
+	
+	if (fn == 'DeptID' && (wnd.item.DeptID == int(old_value))) return;
+	
 	Engine.engine.update_employee_field(wnd.item, fn, old_value);
 }
 

@@ -52,7 +52,7 @@ protected function changer(o:*):Boolean
 
 	
 	
-<s:Label text="{item.DeptName}" color="#202020" paddingRight="8"/>	
+<s:Label text="{item.DeptID != 0 ? item.DeptName : ''}" color="#202020" paddingRight="8" width="100%"/>	
 <fx:Declarations>
 <fx:Boolean>{changer(Engine.engine.departments_query_count)}</fx:Boolean>
 </fx:Declarations>

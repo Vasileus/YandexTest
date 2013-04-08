@@ -29,7 +29,7 @@ protected function on_refresh(event:MouseEvent = null):void
 
 protected function on_reset(event:MouseEvent):void
 {
-	wnd.item.DeptID = 0;
+	wnd.item.DeptID = -1;
 	wnd.item.FirstName = "";	
 	wnd.item.LastName = "";
 	wnd.item.Position = "";

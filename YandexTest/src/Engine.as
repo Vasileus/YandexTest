@@ -42,6 +42,8 @@ public override function close_database_connection():void
 	page_start = 0;
 	page_total = 0;
 	employee_num_records = 0;
+
+	filter.init(0, -1, "", "", "");
 }
 
 
@@ -60,7 +62,7 @@ protected override function do_database_open():void
 // EMPLOYEE
 [Bindable] public var f_use_filter:Boolean = false;
 [Bindable] public var f_filter_like:Boolean = true;
-[Bindable] public var filter:Employee = new Employee(0, 0, "", "", "");
+[Bindable] public var filter:Employee = new Employee(0, -1, "", "", "");
 
 
 [Bindable] public var page_limit:int = 100;
@@ -104,6 +106,7 @@ protected function query_departments_emp_count_result(e:SQLEvent, error:SQLError
 	f_data_error = check_departments_emp_indexes() != 0;
 }
 
+// Проверяем целостность индексов
 protected function check_departments_emp_indexes():int
 {
 	var count:int = 0;
@@ -158,7 +161,7 @@ public function filter_string():String
 	if (!f_use_filter) return " "; 
 	var s:String = "";
 
-	if (filter.DeptID > 0) {
+	if (filter.DeptID >= 0) {
 		if (s != "") s += " AND ";
 		s += "DeptID=" + filter.DeptID;
 	}
@@ -271,6 +274,9 @@ public function replace_employees_to_department_by_fllter(id:int):void
 // Добавитить сотрудника
 public function add_employee(v:Employee):void
 {
+	if (v.DeptID < 0) v.DeptID = 0;
+	
+	
 	var sql:String = "INSERT INTO Employees (DeptID,FirstName,LastName,Position) VALUES" +
 		"(" + v.DeptID + ",'" + escape(v.FirstName) + "','" + escape(v.LastName) + "','" + escape(v.Position) + "')";
 		
@@ -380,11 +386,16 @@ protected function query_departments_result(e:SQLEvent, error:SQLErrorEvent, par
 	departments.splice(0);
 	departments_index = {};
 	
+	
+	departments[0] = new Department(0, "{Неопределённое отделение}");	
+	departments_index[0] = 0;
+	
+	
 	for (var i:int = 0; i < a.length; i++) {
 		var o:Object = a[i];
 		
-		departments[i] = new Department(o['DeptID'], o['DeptName']);
-		departments_index[departments[i].DeptID] = i;
+		departments[i + 1] = new Department(o['DeptID'], o['DeptName']);
+		departments_index[departments[i + 1].DeptID] = i + 1;
 	}
 
 	departments_ac.source = departments;

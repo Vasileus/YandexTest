@@ -40,6 +40,11 @@ protected function on_btn_ok_click(event:MouseEvent):void
 	dispatchEvent(new CloseEvent(CloseEvent.CLOSE, true))	
 }
 
+public function change_item(item:Employee, fn:String, old_value:*):void
+{
+	if (wnd.item.DeptID < 0) wnd.item.DeptID = 0;
+}	
+	
 private function handleValid(e:ValidationResultEvent):void
 {
 /*
@@ -68,7 +73,7 @@ private function handleValid(e:ValidationResultEvent):void
 
 
 	
-<local:EmployeeWindow id="wnd" width="100%" height="100%" enabled="{engine.f_connected}" />	
+<local:EmployeeWindow id="wnd" width="100%" height="100%" enabled="{engine.f_connected}" change_item="{change_item}" />	
 
 <s:HGroup width="100%" horizontalAlign="right">
 	<s:Button id="btn_ok" label="Добавить"  click="on_btn_ok_click(event)"

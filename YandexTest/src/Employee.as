@@ -12,6 +12,11 @@ public class Employee
 
 public function Employee(EmplID:int = 0, DeptID:int = 0, FirstName:String = null, LastName:String = null, Position:String = null)
 {
+	init(EmplID, DeptID, FirstName, LastName, Position);
+}
+
+public function init(EmplID:int = 0, DeptID:int = 0, FirstName:String = null, LastName:String = null, Position:String = null):void
+{
 	this.EmplID    = EmplID;
 	this.DeptID    = DeptID;	
 	

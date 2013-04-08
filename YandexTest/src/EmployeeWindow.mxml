@@ -56,11 +56,11 @@ protected function get_dept_index(id:int):int
 }
 	
 	
-protected function inp_Dept_change(event:IndexChangeEvent):void
+protected function inp_Dept_change():void
 {
 	if (item != null) {
 		var old_value:int = item.DeptID; 
-		item.DeptID = (dep_dp.getItemAt(inp_Dept.selectedIndex) as Department).DeptID;
+		item.DeptID = inp_Dept.selectedIndex >= 0 ? (dep_dp.getItemAt(inp_Dept.selectedIndex) as Department).DeptID : -1;
 		change_item(item, "DeptID", old_value);
 	}
 }
@@ -119,8 +119,8 @@ protected function dept_out(event:FocusEvent):void
 
 <s:HGroup width="100%" verticalAlign="middle">
 	<s:Label id="lbl_Dept" text="Отделение:"  minWidth="{Math.max(lbl_FirstName.width, lbl_LastName.width, lbl_Dept.width, lbl_Position.width )}" enabled="{item != null}"/>
-	<s:DropDownList id="inp_Dept" dataProvider="{dep_dp}" width="100%" labelField="DeptName" focusOut="dept_out(event)" selectedIndex="{item != null ? get_dept_index(item.DeptID) : -1}" change="inp_Dept_change(event)" enabled="{item != null}"/>
-	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{if (item!= null) item.DeptID = 0}" enabled="{item != null}"  />
+	<s:DropDownList id="inp_Dept" dataProvider="{dep_dp}" width="100%" labelField="DeptName" focusOut="dept_out(event)" selectedIndex="{item != null ? get_dept_index(item.DeptID) : -1}" change="{inp_Dept_change()}" enabled="{item != null}"/>
+	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{inp_Dept.selectedIndex = -1; inp_Dept_change()}" enabled="{item != null}"  />
 </s:HGroup>
 	
 <s:HGroup width="100%" verticalAlign="middle">

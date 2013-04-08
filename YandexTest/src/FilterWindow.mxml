@@ -91,7 +91,7 @@ protected function on_replace_to_department(event:MouseEvent):void
 
 <s:HGroup width="100%" horizontalAlign="center"  verticalAlign="middle" enabled="{Engine.engine.f_use_filter}" paddingLeft="20" paddingRight="20">	
 	<s:DropDownList id="inp_Dept" dataProvider="{dep_dp}" width="100%" labelField="DeptName"  />
-	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{inp_Dept.selectedIndex = -1}"   />
+	<s:Image id="del_Dept" source="{Icons._delete}" width="24" click="{inp_Dept.selectedIndex = 0}"   />
 	<s:Button label="Перевести" click="on_replace_to_department(event)" enabled="{engine.employee_num_records != 0 &amp;&amp; f_db_ready}" />
 </s:HGroup>
 
